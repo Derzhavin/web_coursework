@@ -1,3 +1,5 @@
+import { gameManager } from '../index.js';
+
 export default class MapManager {
     constructor() {
         this.mapData = null; // переменная для хранения карты
@@ -171,7 +173,8 @@ export default class MapManager {
                             obj.size_x = e.width;
                             obj.size_y = e.height;
                             gameManager.entities.push(obj);
-                            if (obj.name === 'pacman') gameManager.initPlayer(obj);
+                            if (obj.name === 'playerTank')
+                                gameManager.initPlayer(obj);
                         } catch (ex) { // если объект с типом e.type не описан разработчиком
                             console.log(`Error while creating: [${e.gid}] ${e.type}, ${ex}`);
                         }
