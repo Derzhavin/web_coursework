@@ -6,25 +6,14 @@ export default class MapManager {
         this.yCount = 0; // по вертикали
         this.tSize = {x: 50, y: 50}; // размер блока
         this.mapSize = {x: 50, y: 50}; // Размер карты в пикселях
+        this.background = null;
         this.tilesets = []; // массив описаний блоков карты
         this.imgLoadCount = 0; // количество загруженных изображений
         this.imgLoaded = false; // все изображения загружены
         this.jsonLoaded = false; // json описание загружено
     }
 
-    loadMap(path) {
-        var request = new XMLHttpRequest();
-        request.onreadystatechange = function () {
-            if (request.readyState === 4 && request.status === 200) {
-                mapManager.parseMap(request.responseText);
-            }
-        };
-        request.open("GET", path, true);
-        request.send();
-    }
-
     parseMap(tilesJSON) {
-        console.log(tilesJSON);
         this.mapData = tilesJSON; // разобрать JSON
         this.xCount = this.mapData.width; // сохранение ширины
         this.yCount = this.mapData.height; // сохранение высоты
@@ -55,6 +44,10 @@ export default class MapManager {
             };
             this.tilesets.push(ts);
         }
+
+        this.background = new Image();
+        this.background.src = '../resources/ground.png';
+
         this.jsonLoaded = true;
     }
 
@@ -97,6 +90,11 @@ export default class MapManager {
             //если карта не была загружена, повторяем вызов
             setTimeout(() => this.draw(ctx), 100);
         } else {
+            ctx.drawImage(this.background,0,0);
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = '#000000';
+            ctx.strokeRect(0, 0, this.mapSize.x, this.mapSize.y);
+
             if (this.tLayer === null) { // при первом обращении к draw верно
                 for (let id = 0; id < this.mapData.layers.length; id++) {
                     const layer = this.mapData.layers[id];

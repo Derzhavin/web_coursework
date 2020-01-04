@@ -1,17 +1,22 @@
-import GameManager from './managers/GameManager';
-import MapManager from 'managers/mapManager';
+#!/usr/bin/env node
 
-import map_for_level_1 from '../resources/maps/map_for_level_1.json';
+import GameManager from './managers/gameManager.js';
+import MapManager from './managers/mapManager.js';
+import map from './maps/map.js';
 
 let mapManager = new MapManager();
 let gameManager = new GameManager();
 
-const ctx = canvas.getContext('2d');
 const canvas = document.querySelector('canvas');
+const ctx = canvas.getContext('2d');
 
 function loadAll() {
-    document.getElementById("Score").innerHTML = 'Очки: 0';
-    mapManager.loadMap("map_for_level_1.json"); // загрузка карты
+    mapManager.parseMap(map); // загрузка карты
     mapManager.parseEntities(); // разбор сущностей карты
     mapManager.draw(ctx); // отобразить карту
 }
+
+loadAll();
+
+canvas.width = mapManager.mapSize.x;
+canvas.height = mapManager.mapSize.y;
