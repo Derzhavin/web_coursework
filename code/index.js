@@ -3,7 +3,8 @@
 import GameManager from './managers/gameManager.js';
 import MapManager from './managers/mapManager.js';
 import SpriteManager from './managers/spriteManager.js';
-import EventsManager from "./managers/eventsManager.js";
+import EventsManager from './managers/eventsManager.js';
+
 import PlayerTank from './entities.js';
 
 import map from './maps/map.js';
@@ -25,7 +26,7 @@ function loadAll() {
             size_y: 32,
             move_x: 0,
             move_y: 0,
-            speed: 8
+            speed: 5
         });
 
     mapManager.parseMap(map); // загрузка карты
@@ -38,6 +39,7 @@ function loadAll() {
 }
 
 loadAll();
-
 canvas.width = mapManager.mapSize.x;
 canvas.height = mapManager.mapSize.y;
+
+gameManager.play(ctx);

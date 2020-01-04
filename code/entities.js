@@ -1,3 +1,5 @@
+import { spriteManager, gameManager} from './index.js';
+
 class Entity {
     constructor(pos_x, pos_y, size_x, size_y) {
         // позиция
@@ -18,7 +20,12 @@ export default class PlayerTank extends Entity {
         this.speed = speed;
     }
 
-    update_pos() {
-
+    draw(ctx) {
+        spriteManager.drawSprite(
+            ctx,
+            'tank_sand',
+            this.pos_x,
+            this.pos_y
+        );
     }
 }

@@ -1,4 +1,5 @@
-import {eventsManager} from "../index.js";
+import {eventsManager, gameManager, mapManager} from '../index.js';
+import PhysicsManager from './physicsManager.js';
 
 export default class GameManager {
     constructor() {
@@ -18,34 +19,39 @@ export default class GameManager {
 
     draw(ctx) {
         for (let e = 0; e < this.entities.length; e++)
-            this.entities[e].draw(ctx, this.player);
+            this.entities[e].draw(ctx);
     }
 
-    play() {
-
+    play(ctx) {
+        this.playInterval = setInterval(() => gameManager.update(ctx), 30);
     }
 
-    update() {
+    update(ctx) {
+        if (!this.player) {
+            return;
+        }
         this.player.move_x = 0;
         this.player.move_y = 0;
 
-        if (eventsManager.action['up']) {
+        if (eventsManager.actions['up']) {
             this.player.move_y = -1;
         }
-        if (eventsManager.action['down']) {
+        if (eventsManager.actions['down']) {
             this.player.move_y = 1;
+            console.log('down')
         }
-        if (eventsManager.action['left']) {
+        if (eventsManager.actions['left']) {
             this.player.move_x = -1;
         }
-        if (eventsManager.action['right']) {
+        if (eventsManager.actions['right']) {
             this.player.move_x = 1;
         }
 
-        this.entities.forEach(entity => {
-            try {
-                entity.update();
-            } catch (exception) {}
-        });
+        this.entities.forEach(entity => PhysicsManager.update_pos(entity));
+
+        mapManager.draw(ctx);
+        this.draw(ctx);
+        console.log(eventsManager.actions);
+        eventsManager.actions = eventsManager.actions.map(action => false);
     }
 }

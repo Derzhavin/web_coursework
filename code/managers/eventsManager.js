@@ -1,7 +1,7 @@
 export default class EventsManager {
     constructor() {
         this.bind = []; // сопоставление клавиш действиям
-        this.action = []; // действия
+        this.actions = []; // действия
     }
 
     setup(canvas) {
@@ -15,6 +15,6 @@ export default class EventsManager {
 
     onKeyDown(event) {
         const action = this.bind[event.keyCode];
-        if (action) this.action[action] = true;
+        if (action) this.actions[action] = true;
     }
 }
