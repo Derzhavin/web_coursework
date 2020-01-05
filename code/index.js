@@ -20,13 +20,14 @@ const ctx = canvas.getContext('2d');
 function loadAll() {
     gameManager.factory['tank'] = () =>
         new PlayerTank({
-            pos_x: 32,
-            pos_y: 32,
-            size_x: 32,
-            size_y: 32,
-            move_x: 0,
-            move_y: 0,
-            speed: 5
+            posX: 32,
+            posY: 32,
+            sizeX: 32,
+            sizeY: 32,
+            moveX: 0,
+            moveY: 0,
+            speed: 64,
+            direction: 'down'
         });
 
     mapManager.parseMap(map); // загрузка карты

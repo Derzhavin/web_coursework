@@ -168,10 +168,10 @@ export default class MapManager {
                             */
                             const obj = gameManager.factory[e.type]();
                             obj.name = e.name;
-                            obj.pos_x = e.x;
-                            obj.pos_y = e.y;
-                            obj.size_x = e.width;
-                            obj.size_y = e.height;
+                            obj.posX = e.x;
+                            obj.posY = e.y;
+                            obj.sizeX = e.width;
+                            obj.sizeY = e.height;
                             gameManager.entities.push(obj);
                             if (obj.name === 'playerTank') {
                                 gameManager.initPlayer(obj);

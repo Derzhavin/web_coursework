@@ -30,28 +30,26 @@ export default class GameManager {
         if (!this.player) {
             return;
         }
-        this.player.move_x = 0;
-        this.player.move_y = 0;
+        this.player.moveX = 0;
+        this.player.moveY = 0;
 
         if (eventsManager.actions['up']) {
-            this.player.move_y = -1;
+            this.player.moveY = -1;
         }
         if (eventsManager.actions['down']) {
-            this.player.move_y = 1;
-            console.log('down')
+            this.player.moveY = 1;
         }
         if (eventsManager.actions['left']) {
-            this.player.move_x = -1;
+            this.player.moveX = -1;
         }
         if (eventsManager.actions['right']) {
-            this.player.move_x = 1;
+            this.player.moveX = 1;
         }
 
         this.entities.forEach(entity => PhysicsManager.update_pos(entity));
 
         mapManager.draw(ctx);
         this.draw(ctx);
-        console.log(eventsManager.actions);
         eventsManager.actions = eventsManager.actions.map(action => false);
     }
 }

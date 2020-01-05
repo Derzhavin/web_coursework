@@ -1,31 +1,32 @@
-import { spriteManager, gameManager} from './index.js';
+import {spriteManager, gameManager} from './index.js';
 
 class Entity {
-    constructor(pos_x, pos_y, size_x, size_y) {
+    constructor(posX, posY, sizeX, sizeY) {
         // позиция
-        this.pos_x = pos_x;
-        this.pos_y = pos_y;
+        this.posX = posX;
+        this.posY = posY;
         // размеры
-        this.size_x = size_x;
-        this.size_y = size_y;
+        this.sizeX = sizeX;
+        this.sizeY = sizeY;
     }
 }
 
 export default class PlayerTank extends Entity {
-    constructor({pos_x, pos_y, size_x, size_y, move_x, move_y, speed}) {
-        super(pos_x, pos_y, size_x, size_y);
+    constructor({posX, posY, sizeX, sizeY, moveX, moveY, speed, direction}) {
+        super(posX, posY, sizeX, sizeY);
         this.name = 'playerTank';
-        this.move_x = move_x;
-        this.move_y = move_y;
+        this.moveX = moveX;
+        this.moveY = moveY;
         this.speed = speed;
+        this.direction = direction;
     }
 
     draw(ctx) {
         spriteManager.drawSprite(
             ctx,
-            'tank_sand',
-            this.pos_x,
-            this.pos_y
+            `tank_sand_${this.direction}`,
+            this.posX,
+            this.posY
         );
     }
 }

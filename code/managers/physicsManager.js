@@ -3,17 +3,33 @@ import eventsManager from './eventsManager.js';
 
 export default class PhysicsManager {
     static update_pos(entity) {
+        if (entity.moveX === -1 && entity.direction !== 'left') {
+            entity.direction = 'left';
+            return
+        }
+        if (entity.moveX === 1 && entity.direction !== 'right') {
+            entity.direction = 'right';
+            return
+        }
+        if (entity.moveY === -1 && entity.direction !== 'up') {
+            entity.direction = 'up';
+            return
+        }
+        if (entity.moveY === 1 && entity.direction !== 'down') {
+            entity.direction = 'down';
+            return
+        }
 
-        let new_x = entity.pos_x + Math.floor(entity.move_x * entity.speed);
-        let new_y = entity.pos_y + Math.floor(entity.move_y * entity.speed);
+        let newX = entity.posX + Math.floor(entity.moveX * entity.speed);
+        let newY = entity.posY + Math.floor(entity.moveY * entity.speed);
 
-        if (mapManager.getTilesetIdx(new_x, new_y) === 0 &&
-            new_x < mapManager.mapSize.x - entity.size_x &&
-            new_y < mapManager.mapSize.y - entity.size_y &&
-            new_x > 0 &&
-            new_y > 0) {
-            entity.pos_x = new_x;
-            entity.pos_y = new_y;
+        if (mapManager.getTilesetIdx(newX, newY) === 0 &&
+            newX < mapManager.mapSize.x - entity.sizeX &&
+            newY < mapManager.mapSize.y - entity.sizeY &&
+            newX > 0 &&
+            newY > 0) {
+            entity.posX = newX;
+            entity.posY = newY;
         }
 
     }
