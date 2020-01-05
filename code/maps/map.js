@@ -38,7 +38,7 @@ export default {
                     "visible":true,
                     "width":42,
                     "x":398,
-                    "y":588.753539019964
+                    "y":588
                 },
                 {
                     "ellipse":true,
