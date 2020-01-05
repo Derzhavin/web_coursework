@@ -1,13 +1,19 @@
 import {spriteManager, gameManager, mapManager} from './index.js';
 
-export class Tank {
-    constructor({name, posX, posY, sizeX, sizeY, moveX, moveY, speed, direction, spriteBaseName}) {
+export class Entity {
+    constructor(posX, posY, sizeX, sizeY) {
         // позиция
         this.posX = posX;
         this.posY = posY;
         // размеры
         this.sizeX = sizeX;
         this.sizeY = sizeY;
+    }
+
+}
+export class Tank extends Entity {
+    constructor({name, posX, posY, sizeX, sizeY, moveX, moveY, speed, direction, spriteBaseName}) {
+        super(new Entity({posX, posY, sizeX, sizeY}))
         this.name = name;
         this.moveX = moveX;
         this.moveY = moveY;
@@ -36,7 +42,6 @@ export class BotTank extends Tank {
     static directions = ['up', 'down', 'left', 'right'];
 
     think() {
-
         this.moveX = 0;
         this.moveY = 0;
 
