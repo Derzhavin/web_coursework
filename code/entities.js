@@ -1,5 +1,4 @@
 import {spriteManager, gameManager, mapManager} from './index.js';
-import randInt from './utilities.js'
 
 export class Tank {
     constructor({name, posX, posY, sizeX, sizeY, moveX, moveY, speed, direction, spriteBaseName}) {
@@ -28,8 +27,31 @@ export class Tank {
 }
 
 export class BotTank extends Tank {
+    constructor({name, posX, posY, sizeX, sizeY, moveX, moveY, speed, direction, spriteBaseName}) {
+        super(new Tank({name, posX, posY, sizeX, sizeY, moveX, moveY, speed, direction, spriteBaseName}));
+        this.actions = [];
+    }
+
     think() {
-        this.moveX = randInt(-1, 2);
-        this.moveY = randInt(-1, 2);
+        let randDirection = ['up', 'down', 'left', 'right'];
+        let action = randDirection[Math.floor(Math.random()*randDirection.length)];
+        if (action) this.actions[action] = true;
+        this.moveX = 0;
+        this.moveY = 0;
+
+        if (this.actions['up']) {
+            this.moveY = -1;
+        }
+        if (this.actions['down']) {
+            this.moveY = 1;
+        }
+        if (this.actions['left']) {
+            this.moveX = -1;
+        }
+        if (this.actions['right']) {
+            this.moveX = 1;
+        }
+
+        this.actions = this.actions.map(action => false);
     }
 }

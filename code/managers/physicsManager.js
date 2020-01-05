@@ -31,7 +31,6 @@ export default class PhysicsManager {
             entity.posX = newX;
             entity.posY = newY;
         }
-
     }
 
     static entityAtXY(entity, x, y) {

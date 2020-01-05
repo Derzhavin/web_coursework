@@ -24,14 +24,26 @@ export default class GameManager {
     }
 
     play(ctx) {
-        this.playInterval = setInterval(() => gameManager.update(ctx), 30);
-        setInterval(() => this.entities.forEach(entity => {if (entity instanceof BotTank) {entity.think()}}), 2000)
+        setInterval(() => gameManager.updatePlayer(), 50);
+        setInterval(() => gameManager.entities.forEach(entity => {if (entity instanceof BotTank) {entity.think();}}), 1000);
+        setInterval(() => gameManager.entities.forEach(entity => {
+            if (entity instanceof BotTank) {
+                PhysicsManager.update_pos(entity);
+            }
+        }), 50)
+        setInterval(() => gameManager.updateView(ctx), 50);
     }
 
-    update(ctx) {
+    updateView(ctx) {
+        mapManager.draw(ctx);
+        this.draw(ctx);
+    }
+
+    updatePlayer() {
         if (!this.player) {
             return;
         }
+
         this.player.moveX = 0;
         this.player.moveY = 0;
 
@@ -48,10 +60,8 @@ export default class GameManager {
             this.player.moveX = 1;
         }
 
-        this.entities.forEach(entity => PhysicsManager.update_pos(entity));
+        PhysicsManager.update_pos(this.player);
 
-        mapManager.draw(ctx);
-        this.draw(ctx);
         eventsManager.actions = eventsManager.actions.map(action => false);
     }
 }
