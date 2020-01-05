@@ -26,11 +26,7 @@ export default class GameManager {
     play(ctx) {
         setInterval(() => gameManager.updatePlayer(), 50);
         setInterval(() => gameManager.entities.forEach(entity => {if (entity instanceof BotTank) {entity.think();}}), 1000);
-        setInterval(() => gameManager.entities.forEach(entity => {
-            if (entity instanceof BotTank) {
-                PhysicsManager.update_pos(entity);
-            }
-        }), 50)
+        setInterval(() => gameManager.entities.forEach(entity => {if (entity instanceof BotTank) {PhysicsManager.update_pos(entity);}}), 50);
         setInterval(() => gameManager.updateView(ctx), 50);
     }
 

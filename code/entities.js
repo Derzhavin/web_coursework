@@ -32,10 +32,14 @@ export class BotTank extends Tank {
         this.actions = [];
     }
 
+    static directions = ['up', 'down', 'left', 'right'];
+
     think() {
-        let randDirection = ['up', 'down', 'left', 'right'];
-        let action = randDirection[Math.floor(Math.random()*randDirection.length)];
-        if (action) this.actions[action] = true;
+        let action = BotTank.directions[Math.floor(Math.random()*BotTank.directions.length)];
+        if (action) {
+            this.actions[action] = true;
+        }
+
         this.moveX = 0;
         this.moveY = 0;
 
