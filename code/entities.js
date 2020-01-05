@@ -1,32 +1,35 @@
-import {spriteManager, gameManager} from './index.js';
+import {spriteManager, gameManager, mapManager} from './index.js';
+import randInt from './utilities.js'
 
-class Entity {
-    constructor(posX, posY, sizeX, sizeY) {
+export class Tank {
+    constructor({name, posX, posY, sizeX, sizeY, moveX, moveY, speed, direction, spriteBaseName}) {
         // позиция
         this.posX = posX;
         this.posY = posY;
         // размеры
         this.sizeX = sizeX;
         this.sizeY = sizeY;
-    }
-}
-
-export default class PlayerTank extends Entity {
-    constructor({posX, posY, sizeX, sizeY, moveX, moveY, speed, direction}) {
-        super(posX, posY, sizeX, sizeY);
-        this.name = 'playerTank';
+        this.name = name;
         this.moveX = moveX;
         this.moveY = moveY;
         this.speed = speed;
         this.direction = direction;
+        this.spriteBaseName = spriteBaseName;
     }
 
     draw(ctx) {
         spriteManager.drawSprite(
             ctx,
-            `tank_sand_${this.direction}`,
+            `${this.spriteBaseName}_${this.direction}`,
             this.posX,
             this.posY
         );
+    }
+}
+
+export class BotTank extends Tank {
+    think() {
+        this.moveX = randInt(-1, 2);
+        this.moveY = randInt(-1, 2);
     }
 }

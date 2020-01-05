@@ -1,5 +1,6 @@
 import {eventsManager, gameManager, mapManager} from '../index.js';
 import PhysicsManager from './physicsManager.js';
+import {BotTank} from '../entities.js';
 
 export default class GameManager {
     constructor() {
@@ -24,6 +25,7 @@ export default class GameManager {
 
     play(ctx) {
         this.playInterval = setInterval(() => gameManager.update(ctx), 30);
+        setInterval(() => this.entities.forEach(entity => {if (entity instanceof BotTank) {entity.think()}}), 2000)
     }
 
     update(ctx) {
