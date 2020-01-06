@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Battle city</title>
+</head>
+<body>
+<div style="text-align: center;">
+    <button class="game_button" onclick="showRules()">rules</button>
+    <br>
+    <br>
+    <button class="game_button" onclick="showGameControl()">control</button>
+    <br>
+    <br>
+    <button class="game_button" onclick="window.location.href = 'game.html'">play</button>
+</div>
+<script>
+    function showGameControl() {
+        alert("Game control:\n" +
+            "up - w;\n" +
+            "down - s;\n" +
+            "left - a;\n" +
+            "right - d."
+        )
+    }
+    function showRules() {
+        alert("Control your tank," +
+            "try to kill all " +
+            "enemy tanks and " +
+            "remember to hurry up " +
+            "because time is limited.")
+    }
+</script>
+<link rel="stylesheet" href="../css/index.css">
+</body>
+</html>

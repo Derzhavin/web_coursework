@@ -80,7 +80,7 @@ export default {
         {
             "columns":23,
             "firstgid":1,
-            "image":"../resources/tilesheet.png",
+            "image":"../../resources/tilesheet.png",
             "imageheight":832,
             "imagewidth":1472,
             "margin":0,

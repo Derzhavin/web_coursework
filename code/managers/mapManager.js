@@ -1,4 +1,4 @@
-import { gameManager } from '../index.js';
+import { gameManager } from '../game.js';
 
 export default class MapManager {
     constructor() {
@@ -48,7 +48,7 @@ export default class MapManager {
         }
 
         this.background = new Image();
-        this.background.src = '../resources/ground.png';
+        this.background.src = '../../resources/ground.png';
 
         this.jsonLoaded = true;
     }

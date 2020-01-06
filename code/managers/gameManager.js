@@ -1,4 +1,4 @@
-import {eventsManager, gameManager, mapManager} from '../index.js';
+import {eventsManager, gameManager, mapManager} from '../game.js';
 import PhysicsManager from './physicsManager.js';
 import {BotTank, Fireball, Explosion} from '../entities.js';
 
