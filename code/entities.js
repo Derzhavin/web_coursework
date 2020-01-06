@@ -43,13 +43,13 @@ export class BotTank extends Tank {
         this.spotPlayer = false;
     }
 
-    static directions = ['up', 'down', 'left', 'right'];
+    static decisions = ['up', 'down', 'left', 'right', 'shoot'];
 
     think() {
         this.moveX = 0;
         this.moveY = 0;
 
-        let action = BotTank.directions[Math.floor(Math.random() * BotTank.directions.length)];
+        let action = BotTank.decisions[Math.floor(Math.random() * BotTank.decisions.length)];
 
         if (action && !this.spotPlayer) {
             this.actions[action] = true;
@@ -60,22 +60,24 @@ export class BotTank extends Tank {
         if (Math.abs(player.posY - this.posY) < 10) {
             if (player.posX < this.posX && this.actions['left']) {
                 this.moveX = -1;
+                this.react();
             }
             if (player.posX > this.posX && this.actions['right']) {
                 this.moveX = 1;
+                this.react();
             }
-            this.spotPlayer = true;
             return;
         }
 
         if (Math.abs(player.posX - this.posX) < 10) {
             if (player.posY < this.posY && this.actions['up']) {
                 this.moveY = -1;
+                this.react();
             }
             if (player.posY > this.posY && this.actions['down']) {
                 this.moveY = 1;
+                this.react();
             }
-            this.spotPlayer = true;
             return
         }
 
@@ -95,6 +97,11 @@ export class BotTank extends Tank {
         }
 
         this.actions = this.actions.map(action => false);
+    }
+
+    react() {
+        this.actions['shoot'] = true;
+        this.spotPlayer = true;
     }
 }
 

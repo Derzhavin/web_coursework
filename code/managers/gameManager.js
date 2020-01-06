@@ -50,6 +50,10 @@ export default class GameManager {
         this.entities.forEach(entity => {
             if (entity instanceof BotTank) {
                 entity.think();
+
+                if (entity.actions['shoot']) {
+                    this.createFireball(entity);
+                }
             }
         })
     }
@@ -120,19 +124,24 @@ export default class GameManager {
         }
 
         if (eventsManager.actions['shoot']) {
-            let fireball = Object.create(this.factory['fireball']());
-            fireball.direction = this.player.direction;
-            fireball.moveX = (fireball.direction === 'left') ? -1 : (fireball.direction === 'right') ? 1 : 0;
-            fireball.moveY = (fireball.direction === 'up') ? -1 : (fireball.direction === 'down') ? 1 : 0;
-
-            fireball.posX = this.player.posX;
-            fireball.posY = this.player.posY;
-
-            this.entities.push(fireball);
+            this.createFireball(this.player);
         }
 
         PhysicsManager.update_pos(this.player);
 
         eventsManager.actions = eventsManager.actions.map(action => false);
+    }
+
+    createFireball(entity) {
+        console.log('fireball')
+        let fireball = Object.create(this.factory['fireball']());
+        fireball.direction = entity.direction;
+        fireball.moveX = (fireball.direction === 'left') ? -1 : (fireball.direction === 'right') ? 1 : 0;
+        fireball.moveY = (fireball.direction === 'up') ? -1 : (fireball.direction === 'down') ? 1 : 0;
+
+        fireball.posX = entity.posX;
+        fireball.posY = entity.posY;
+
+        this.entities.push(fireball);
     }
 }
