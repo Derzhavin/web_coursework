@@ -4,7 +4,7 @@ import GameManager from './managers/gameManager.js';
 import MapManager from './managers/mapManager.js';
 import SpriteManager from './managers/spriteManager.js';
 import EventsManager from './managers/eventsManager.js';
-import {Tank, BotTank} from './entities.js';
+import {Tank, BotTank, Fireball, Explosion} from './entities.js';
 
 import map from './maps/map.js';
 
@@ -15,7 +15,6 @@ export let eventsManager = new EventsManager();
 
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
-
 
 loadAll();
 canvas.width = mapManager.mapSize.x;
@@ -34,8 +33,8 @@ function loadAll() {
             moveX: 0,
             moveY: 0,
             speed: 64,
-            direction: 'down',
             spriteBaseName: 'tank_sand',
+            direction: 'down'
         });
 
     gameManager.factory['blueTank'] = () =>
@@ -48,8 +47,33 @@ function loadAll() {
             moveX: 0,
             moveY: 0,
             speed: 64,
-            direction: 'down',
-            spriteBaseName: 'tank_blue'
+            spriteBaseName: 'tank_blue',
+            direction: 'down'
+        });
+
+    gameManager.factory['fireball'] = () =>
+        new Fireball({
+            name: 'fireball',
+            posX: 32,
+            posY: 32,
+            sizeX: 32,
+            sizeY: 32,
+            moveX: 0,
+            moveY: 0,
+            speed: 64,
+            spriteBaseName: 'fireball',
+            direction: 'down'
+        });
+
+    gameManager.factory['explosion'] = () =>
+        new Explosion({
+            name: 'explosion1',
+            posX: 32,
+            posY: 32,
+            sizeX: 32,
+            sizeY: 32,
+            spriteBaseName: 'explosion',
+            stageChangeSpeed: 50
         });
 
     mapManager.parseMap(map); // загрузка карты

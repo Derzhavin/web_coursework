@@ -1,36 +1,46 @@
 import {mapManager, gameManager} from '../index.js';
+import {Explosion} from "../entities.js";
 
 export default class PhysicsManager {
     static update_pos(entity) {
-        if (entity.moveX === -1 && entity.direction !== 'left') {
-            entity.direction = 'left';
-            return
-        }
-        if (entity.moveX === 1 && entity.direction !== 'right') {
-            entity.direction = 'right';
-            return
-        }
-        if (entity.moveY === -1 && entity.direction !== 'up') {
-            entity.direction = 'up';
-            return
-        }
-        if (entity.moveY === 1 && entity.direction !== 'down') {
-            entity.direction = 'down';
-            return
-        }
+        if (!(entity instanceof Explosion)) {
+            if (entity.moveX === -1 && entity.direction !== 'left') {
+                entity.direction = 'left';
+                return
+            }
+            if (entity.moveX === 1 && entity.direction !== 'right') {
+                entity.direction = 'right';
+                return
+            }
+            if (entity.moveY === -1 && entity.direction !== 'up') {
+                entity.direction = 'up';
+                return
+            }
+            if (entity.moveY === 1 && entity.direction !== 'down') {
+                entity.direction = 'down';
+                return
+            }
 
-        let newX = entity.posX + Math.floor(entity.moveX * entity.speed);
-        let newY = entity.posY + Math.floor(entity.moveY * entity.speed);
+            let newX = entity.posX + Math.floor(entity.moveX * entity.speed);
+            let newY = entity.posY + Math.floor(entity.moveY * entity.speed);
 
-        if (mapManager.getTilesetIdx(newX, newY) === 0 &&
-            newX < mapManager.mapSize.x - entity.sizeX &&
-            newY < mapManager.mapSize.y - entity.sizeY &&
-            newX > 0 &&
-            newY > 0 &&
-            !this.entityAtXY(entity, newX, newY)) {
-            entity.posX = newX;
-            entity.posY = newY;
+            if (!this.isObstacleAtXY(entity, newX, newY)) {
+                entity.posX = newX;
+                entity.posY = newY;
+            }
         }
+    }
+
+    static isObstacleAtXY(entity, x, y) {
+        if (mapManager.getTilesetIdx(x, y) === 0 &&
+            x < mapManager.mapSize.x - entity.sizeX &&
+            y < mapManager.mapSize.y - entity.sizeY &&
+            x > 0 &&
+            y > 0 &&
+            !this.entityAtXY(entity, x, y)) {
+            return false;
+        }
+        return true
     }
 
     static entityAtXY(entity, x, y) {
