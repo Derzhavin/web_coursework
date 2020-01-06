@@ -1,4 +1,4 @@
-import {spriteManager, gameManager, mapManager} from './index.js';
+import {spriteManager, gameManager, mapManager} from './game.js';
 import PhysicsManager from "./managers/physicsManager.js";
 
 class Entity {

@@ -66,7 +66,7 @@ export default class SpriteManager {
     }
 
     loadAtlas() {
-        this.loadImage('../resources/spritesheet.png');
+        this.loadImage('../../resources/spritesheet.png');
         this.parseAtlas(sprite);
     }
 }

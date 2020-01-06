@@ -1,4 +1,4 @@
-import {mapManager, gameManager} from '../index.js';
+import {mapManager, gameManager} from '../game.js';
 import {Explosion} from "../entities.js";
 
 export default class PhysicsManager {
