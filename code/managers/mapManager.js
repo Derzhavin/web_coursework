@@ -7,7 +7,7 @@ export default class MapManager {
         this.xCount = 0; // количество блоков по горизонтали
         this.yCount = 0; // по вертикали
         this.tSize = {x: 50, y: 50}; // размер блока
-        this.mapSize = {x: 50, y: 50}; // Размер карты в пикселях
+        this.mapSize = {x: 768, y: 768}; // Размер карты в пикселях
         this.background = null;
         this.tilesets = []; // массив описаний блоков карты
         this.imgLoadCount = 0; // количество загруженных изображений

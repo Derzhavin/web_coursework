@@ -1,5 +1,3 @@
-import sprite from '../sprites.js';
-
 export default class SpriteManager {
     constructor() {
         this.image = new Image();
@@ -63,10 +61,5 @@ export default class SpriteManager {
                 sprite.h,
             );
         }
-    }
-
-    loadAtlas() {
-        this.loadImage('../../resources/spritesheet.png');
-        this.parseAtlas(sprite);
     }
 }
