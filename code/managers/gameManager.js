@@ -62,6 +62,13 @@ export default class GameManager {
         this.entities.forEach(entity => {
             if (entity instanceof BotTank) {
                 PhysicsManager.update_pos(entity);
+                let another_entity = PhysicsManager.entityAtXY(entity, entity.posX, entity.posY);
+
+                if (another_entity) {
+                    if (another_entity instanceof Explosion) {
+                        this.laterKill.push(entity);
+                    }
+                }
             }
         })
     }
@@ -129,11 +136,18 @@ export default class GameManager {
 
         PhysicsManager.update_pos(this.player);
 
+        let another_entity = PhysicsManager.entityAtXY(this.player, this.player.posX, this.player.posY);
+
+        if (another_entity) {
+            if (another_entity instanceof Explosion) {
+                this.laterKill.push(this.player);
+            }
+        }
+
         eventsManager.actions = eventsManager.actions.map(action => false);
     }
 
     createFireball(entity) {
-        console.log('fireball')
         let fireball = Object.create(this.factory['fireball']());
         fireball.direction = entity.direction;
         fireball.moveX = (fireball.direction === 'left') ? -1 : (fireball.direction === 'right') ? 1 : 0;
