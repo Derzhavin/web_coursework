@@ -1,17 +1,15 @@
-#!/usr/bin/env node
-
 import GameManager from './managers/gameManager.js';
 import MapManager from './managers/mapManager.js';
 import SpriteManager from './managers/spriteManager.js';
 import EventsManager from './managers/eventsManager.js';
+import ViewManager from "./managers/viewManager.js";
 import {Tank, BotTank, Fireball, Explosion} from './entities.js';
-
-import map from './maps/map.js';
 
 export let mapManager = new MapManager();
 export let gameManager = new GameManager();
 export let spriteManager = new SpriteManager();
 export let eventsManager = new EventsManager();
+export let viewManager = new ViewManager(768, 768);
 
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
@@ -23,6 +21,17 @@ canvas.height = mapManager.mapSize.y;
 gameManager.play(ctx);
 
 function loadAll() {
+    loadMap('../../resources/map.json');
+    loadAtlas('../../resources/atlas.json', '../../resources/spritesheet.png');
+    createGameFactory();
+
+    mapManager.parseEntities(); // разбор сущностей карты
+    mapManager.draw(ctx); // отобразить карту
+
+    eventsManager.setup(canvas);
+}
+
+function createGameFactory() {
     gameManager.factory['tank'] = () =>
         new Tank({
             name: 'playerTank',
@@ -75,12 +84,26 @@ function loadAll() {
             spriteBaseName: 'explosion',
             stageChangeSpeed: 50
         });
+}
+function loadMap(path) {
+    let request = new XMLHttpRequest();
+    request.onreadystatechange = function () {
+        if (request.readyState === 4 && request.status === 200) {
+            mapManager.parseMap(JSON.parse(request.responseText));
+        }
+    };
+    request.open("GET", path, true);
+    request.send();
+}
 
-    mapManager.parseMap(map); // загрузка карты
-    mapManager.parseEntities(); // разбор сущностей карты
-    mapManager.draw(ctx); // отобразить карту
-
-    spriteManager.loadAtlas();
-
-    eventsManager.setup(canvas);
+function loadAtlas(atlasJson, atlasImg) {
+    let request = new XMLHttpRequest();
+    request.onreadystatechange = function () {
+        if (request.readyState === 4 && request.status === 200) {
+            spriteManager.parseAtlas(JSON.parse(request.responseText));
+        }
+    };
+    request.open("GET", atlasJson, true);
+    request.send();
+    spriteManager.loadImage(atlasImg);
 }

@@ -1,6 +1,7 @@
-import {eventsManager, gameManager, mapManager} from '../game.js';
+import {eventsManager, mapManager, viewManager} from '../game.js';
 import PhysicsManager from './physicsManager.js';
 import {BotTank, Fireball, Explosion} from '../entities.js';
+
 
 export default class GameManager {
     constructor() {
@@ -8,6 +9,9 @@ export default class GameManager {
         this.entities = []; // объекты на карте (не убитые)
         this.player = null;
         this.laterKill = [];
+        this.isWin = false;
+        this.isPlaying = false;
+        this.isPause = false;
     }
 
     initPlayer(obj) {
@@ -24,13 +28,15 @@ export default class GameManager {
     }
 
     play(ctx) {
-        setInterval(() => gameManager.updatePlayer(), 50);
-        setInterval(() => gameManager.updateEnemyTanksDecision(), 1000);
-        setInterval(() => gameManager.updateEnemyTanksPhysics(), 50);
-        setInterval(() => gameManager.updateExplosions(), 50);
-        setInterval(() => gameManager.updateFireballs(), 100);
-        setInterval(() => gameManager.updateView(ctx), 50);
-        setInterval(() => gameManager.updateLaterKill(), 50);
+        this.isPlaying = true;
+
+        setInterval(() => this.updateView(ctx), 50);
+        setInterval(() => this.updateEnemyTanksDecision(), 1000);
+        setInterval(() => this.updateEnemyTanksPhysics(), 50);
+        setInterval(() => this.updatePlayer(), 50);
+        setInterval(() => this.updateExplosions(), 50);
+        setInterval(() => this.updateFireballs(), 100);
+        setInterval(() => this.updateLaterKill(), 50);
     }
 
     updateLaterKill() {
@@ -59,30 +65,41 @@ export default class GameManager {
     }
 
     updateEnemyTanksPhysics() {
-        this.entities.forEach(entity => {
-            if (entity instanceof BotTank) {
-                PhysicsManager.update_pos(entity);
-                let another_entity = PhysicsManager.entityAtXY(entity, entity.posX, entity.posY);
+        if (this.player) {
+            let botTankExist = false;
+            this.entities.forEach(entity => {
+                if (entity instanceof BotTank) {
+                    botTankExist = true;
+                    PhysicsManager.update_pos(entity);
+                    let another_entity = PhysicsManager.entityAtXY(entity, entity.posX, entity.posY);
 
-                if (another_entity) {
-                    if (another_entity instanceof Explosion) {
-                        this.laterKill.push(entity);
+                    if (another_entity) {
+                        if (another_entity instanceof Explosion) {
+                            this.laterKill.push(entity);
+                        }
                     }
                 }
+            })
+
+            if (!botTankExist) {
+                this.isPlaying = false;
+                this.isWin = true;
             }
-        })
+        }
     }
 
     updateExplosions() {
-        this.entities.forEach(entity => {
-            if (entity instanceof Explosion) {
-                entity.stage += 1;
+        if (!this.isPause) {
+            this.entities.forEach(entity => {
+                if (entity instanceof Explosion) {
+                    entity.stage += 1;
 
-                if (entity.stage === 3) {
-                    this.laterKill.push(entity);
+                    if (entity.stage === 3) {
+                        this.laterKill.push(entity);
+                    }
                 }
-            }
-        })
+            });
+        }
     }
 
     updateFireballs() {
@@ -107,6 +124,13 @@ export default class GameManager {
     updateView(ctx) {
         mapManager.draw(ctx);
         this.draw(ctx);
+
+        if (!this.isPlaying) {
+            viewManager.renderLevelCompletion(ctx, (this.isWin) ? 'WIN' : 'GAME OVER');
+        }
+        if (this.isPause) {
+            viewManager.renderLevelPause(ctx, 'PAUSE');
+        }
     }
 
     updatePlayer() {
@@ -129,9 +153,11 @@ export default class GameManager {
         if (eventsManager.actions['right']) {
             this.player.moveX = 1;
         }
-
         if (eventsManager.actions['shoot']) {
             this.createFireball(this.player);
+        }
+        if (eventsManager.actions['pause'] && this.isPlaying) {
+            this.isPause = this.isPause ? false: true;
         }
 
         PhysicsManager.update_pos(this.player);
@@ -141,6 +167,7 @@ export default class GameManager {
         if (another_entity) {
             if (another_entity instanceof Explosion) {
                 this.laterKill.push(this.player);
+                this.isPlaying = false;
             }
         }
 

@@ -3,30 +3,32 @@ import {Explosion} from "../entities.js";
 
 export default class PhysicsManager {
     static update_pos(entity) {
-        if (!(entity instanceof Explosion)) {
-            if (entity.moveX === -1 && entity.direction !== 'left') {
-                entity.direction = 'left';
-                return
-            }
-            if (entity.moveX === 1 && entity.direction !== 'right') {
-                entity.direction = 'right';
-                return
-            }
-            if (entity.moveY === -1 && entity.direction !== 'up') {
-                entity.direction = 'up';
-                return
-            }
-            if (entity.moveY === 1 && entity.direction !== 'down') {
-                entity.direction = 'down';
-                return
-            }
+        if (gameManager.isPlaying && !gameManager.isPause) {
+            if (!(entity instanceof Explosion)) {
+                if (entity.moveX === -1 && entity.direction !== 'left') {
+                    entity.direction = 'left';
+                    return
+                }
+                if (entity.moveX === 1 && entity.direction !== 'right') {
+                    entity.direction = 'right';
+                    return
+                }
+                if (entity.moveY === -1 && entity.direction !== 'up') {
+                    entity.direction = 'up';
+                    return
+                }
+                if (entity.moveY === 1 && entity.direction !== 'down') {
+                    entity.direction = 'down';
+                    return
+                }
 
-            let newX = entity.posX + Math.floor(entity.moveX * entity.speed);
-            let newY = entity.posY + Math.floor(entity.moveY * entity.speed);
+                let newX = entity.posX + Math.floor(entity.moveX * entity.speed);
+                let newY = entity.posY + Math.floor(entity.moveY * entity.speed);
 
-            if (!this.isObstacleAtXY(entity, newX, newY)) {
-                entity.posX = newX;
-                entity.posY = newY;
+                if (!this.isObstacleAtXY(entity, newX, newY)) {
+                    entity.posX = newX;
+                    entity.posY = newY;
+                }
             }
         }
     }
