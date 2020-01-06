@@ -1,27 +1,31 @@
 import {spriteManager, gameManager, mapManager} from './index.js';
+import PhysicsManager from "./managers/physicsManager.js";
 
-export class Entity {
-    constructor(posX, posY, sizeX, sizeY) {
+class Entity {
+    constructor({name, posX, posY, sizeX, sizeY, spriteBaseName}) {
         // позиция
         this.posX = posX;
         this.posY = posY;
         // размеры
         this.sizeX = sizeX;
         this.sizeY = sizeY;
-    }
-
-}
-export class Tank extends Entity {
-    constructor({name, posX, posY, sizeX, sizeY, moveX, moveY, speed, direction, spriteBaseName}) {
-        super(new Entity({posX, posY, sizeX, sizeY}))
         this.name = name;
+        this.spriteBaseName = spriteBaseName;
+    }
+}
+
+class MovableEntity extends Entity {
+    constructor({name, posX, posY, sizeX, sizeY, moveX, moveY, speed, spriteBaseName, direction}) {
+        super(new Entity({name, posX, posY, sizeX, sizeY, spriteBaseName}));
         this.moveX = moveX;
         this.moveY = moveY;
         this.speed = speed;
         this.direction = direction;
-        this.spriteBaseName = spriteBaseName;
     }
 
+}
+
+export class Tank extends MovableEntity {
     draw(ctx) {
         spriteManager.drawSprite(
             ctx,
@@ -33,8 +37,8 @@ export class Tank extends Entity {
 }
 
 export class BotTank extends Tank {
-    constructor({name, posX, posY, sizeX, sizeY, moveX, moveY, speed, direction, spriteBaseName}) {
-        super(new Tank({name, posX, posY, sizeX, sizeY, moveX, moveY, speed, direction, spriteBaseName}));
+    constructor({name, posX, posY, sizeX, sizeY, moveX, moveY, speed, spriteBaseName, direction}) {
+        super(new Tank({name, posX, posY, sizeX, sizeY, moveX, moveY, speed, spriteBaseName, direction}));
         this.actions = [];
         this.spotPlayer = false;
     }
@@ -91,5 +95,33 @@ export class BotTank extends Tank {
         }
 
         this.actions = this.actions.map(action => false);
+    }
+}
+
+export class Fireball extends MovableEntity {
+    draw(ctx) {
+        spriteManager.drawSprite(
+            ctx,
+            this.spriteBaseName,
+            this.posX,
+            this.posY
+        );
+    }
+}
+
+export class Explosion extends Entity {
+    constructor({name, posX, posY, sizeX, sizeY, spriteBaseName, stageChangeSpeed}) {
+        super(new Entity({name, posX, posY, sizeX, sizeY, spriteBaseName}));
+        this.stage = 1;
+        this.stageChangeSpeed = stageChangeSpeed;
+    }
+
+    draw(ctx) {
+        spriteManager.drawSprite(
+            ctx,
+            `${this.spriteBaseName}${this.stage}`,
+            this.posX,
+            this.posY
+        );
     }
 }

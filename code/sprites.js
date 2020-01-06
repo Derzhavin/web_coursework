@@ -324,7 +324,7 @@ export default {
     "meta": {
     "app": "https://www.leshylabs.com/apps/sstool/",
         "version": "Leshy SpriteSheet Tool v0.8.4",
-        "image": "spritesheet.png",
+        "image": "../resources/spritesheet.png",
         "size": {
         "w": 179,
             "h": 179
