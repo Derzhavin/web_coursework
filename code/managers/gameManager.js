@@ -1,10 +1,10 @@
-import {eventsManager, mapManager, viewManager} from '../game.js';
+import {eventsManager, mapManager, viewManager, soundManager} from '../game.js';
 import PhysicsManager from './physicsManager.js';
 import {BotTank, Fireball, Explosion} from '../entities.js';
-
+import {loadMap} from '../loaders.js'
 
 export default class GameManager {
-    constructor() {
+    constructor(level) {
         this.factory = {}; // фабрика объектов на карте
         this.entities = []; // объекты на карте (не убитые)
         this.player = null;
@@ -12,6 +12,8 @@ export default class GameManager {
         this.isWin = false;
         this.isPlaying = false;
         this.isPause = false;
+        this.level = level;
+        this.intervalIds = [];
     }
 
     initPlayer(obj) {
@@ -29,14 +31,16 @@ export default class GameManager {
 
     play(ctx) {
         this.isPlaying = true;
+        this.isPause = false;
+        this.isWin = false;
 
-        setInterval(() => this.updateView(ctx), 50);
-        setInterval(() => this.updateEnemyTanksDecision(), 1000);
-        setInterval(() => this.updateEnemyTanksPhysics(), 50);
-        setInterval(() => this.updatePlayer(), 50);
-        setInterval(() => this.updateExplosions(), 50);
-        setInterval(() => this.updateFireballs(), 100);
-        setInterval(() => this.updateLaterKill(), 50);
+        this.intervalIds[0] = setInterval(() => this.updateView(ctx), 50);
+        this.intervalIds[1] = setInterval(() => this.updateEnemyTanksDecision(), 1000);
+        this.intervalIds[2] = setInterval(() => this.updateEnemyTanksPhysics(), 50);
+        this.intervalIds[3] = setInterval(() => this.updatePlayer(), 50);
+        this.intervalIds[4] = setInterval(() => this.updateExplosions(), 50);
+        this.intervalIds[5] = setInterval(() => this.updateFireballs(), 100);
+        this.intervalIds[6] = setInterval(() => this.updateLaterKill(), 50);
     }
 
     updateLaterKill() {
@@ -111,6 +115,7 @@ export default class GameManager {
                 let newY = entity.posY + Math.floor(entity.moveY * entity.speed);
 
                 if (PhysicsManager.isObstacleAtXY(entity, newX, newY)) {
+                    soundManager.play('../../resources/sounds/explosion.mp3');
                     let explosion = Object.create(this.factory['explosion']());
                     explosion.posX = newX;
                     explosion.posY = newY;
@@ -121,15 +126,25 @@ export default class GameManager {
         })
     }
 
+    updateLevel(ctx) {
+        this.entities = [];
+        this.laterKill = [];
+        this.isWin = false;
+        this.level += 1;
+        this.intervalIds.forEach(intervalId => clearInterval(intervalId));
+        eventsManager.actions = eventsManager.actions.map(action => false);
+        loadMap(`../../resources/mapLevel${this.level}.json`);
+        mapManager.parseEntities();
+    }
+
     updateView(ctx) {
         mapManager.draw(ctx);
         this.draw(ctx);
-
         if (!this.isPlaying) {
-            viewManager.renderLevelCompletion(ctx, (this.isWin) ? 'WIN' : 'GAME OVER');
+            viewManager.renderLevelCompletion(ctx, this.level, (this.isWin) ? 'WIN' : 'GAME OVER');
         }
         if (this.isPause) {
-            viewManager.renderLevelPause(ctx, 'PAUSE');
+            viewManager.renderLevelPause(ctx);
         }
     }
 
@@ -173,7 +188,6 @@ export default class GameManager {
 
         eventsManager.actions = eventsManager.actions.map(action => false);
     }
-
 
     createFireball(entity) {
         let fireball = Object.create(this.factory['fireball']());

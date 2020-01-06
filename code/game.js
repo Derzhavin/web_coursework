@@ -3,33 +3,42 @@ import MapManager from './managers/mapManager.js';
 import SpriteManager from './managers/spriteManager.js';
 import EventsManager from './managers/eventsManager.js';
 import ViewManager from "./managers/viewManager.js";
+import SoundManager from "./managers/soundManager.js";
 import {Tank, BotTank, Fireball, Explosion} from './entities.js';
+import {loadMap, loadAtlas} from "./loaders.js";
 
 export let mapManager = new MapManager();
-export let gameManager = new GameManager();
+export let gameManager = new GameManager(1);
 export let spriteManager = new SpriteManager();
 export let eventsManager = new EventsManager();
 export let viewManager = new ViewManager(768, 768);
+export let soundManager = new SoundManager();
 
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
 
-loadAll();
+soundManager.init();
+soundManager.loadArray([
+        '../../resources/sounds/background.mp3',
+        '../../resources/sounds/explosion.mp3',
+        '../../resources/sounds/game_over.mp3',
+        '../../resources/sounds/pause_in.mp3',
+        '../../resources/sounds/pause_out.mp3'
+]);
+loadMap('../../resources/mapLeveL1.json');
+loadAtlas('../../resources/atlas.json', '../../resources/spritesheet.png');
+createGameFactory();
+mapManager.parseEntities(); // разбор сущностей карты
+
+mapManager.draw(ctx); // отобразить карту
+eventsManager.setup(canvas);
+
 canvas.width = mapManager.mapSize.x;
+
 canvas.height = mapManager.mapSize.y;
 
+soundManager.play('../../resources/sounds/background.mp3', {looping: true, volume: 10});
 gameManager.play(ctx);
-
-function loadAll() {
-    loadMap('../../resources/map.json');
-    loadAtlas('../../resources/atlas.json', '../../resources/spritesheet.png');
-    createGameFactory();
-
-    mapManager.parseEntities(); // разбор сущностей карты
-    mapManager.draw(ctx); // отобразить карту
-
-    eventsManager.setup(canvas);
-}
 
 function createGameFactory() {
     gameManager.factory['tank'] = () =>
@@ -84,26 +93,4 @@ function createGameFactory() {
             spriteBaseName: 'explosion',
             stageChangeSpeed: 50
         });
-}
-function loadMap(path) {
-    let request = new XMLHttpRequest();
-    request.onreadystatechange = function () {
-        if (request.readyState === 4 && request.status === 200) {
-            mapManager.parseMap(JSON.parse(request.responseText));
-        }
-    };
-    request.open("GET", path, true);
-    request.send();
-}
-
-function loadAtlas(atlasJson, atlasImg) {
-    let request = new XMLHttpRequest();
-    request.onreadystatechange = function () {
-        if (request.readyState === 4 && request.status === 200) {
-            spriteManager.parseAtlas(JSON.parse(request.responseText));
-        }
-    };
-    request.open("GET", atlasJson, true);
-    request.send();
-    spriteManager.loadImage(atlasImg);
 }
