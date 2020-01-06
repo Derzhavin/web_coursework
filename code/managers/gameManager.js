@@ -147,6 +147,7 @@ export default class GameManager {
         eventsManager.actions = eventsManager.actions.map(action => false);
     }
 
+
     createFireball(entity) {
         let fireball = Object.create(this.factory['fireball']());
         fireball.direction = entity.direction;
