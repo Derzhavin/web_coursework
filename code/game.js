@@ -34,10 +34,9 @@ mapManager.draw(ctx); // отобразить карту
 eventsManager.setup(canvas);
 
 canvas.width = mapManager.mapSize.x;
-
 canvas.height = mapManager.mapSize.y;
 
-soundManager.play('../../resources/sounds/background.mp3', {looping: true, volume: 10});
+soundManager.play('../../resources/sounds/background.mp3', {looping: true, volume: 0.1});
 gameManager.play(ctx);
 
 function createGameFactory() {

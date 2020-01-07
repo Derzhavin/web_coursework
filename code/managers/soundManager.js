@@ -78,4 +78,9 @@ export default class SoundManager {
         sound.start(0);
         return true;
     }
+
+    //Заканчивает всю музыку
+    stopAll() {
+        this.gainNode.disconnect();
+    }
 }

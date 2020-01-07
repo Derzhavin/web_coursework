@@ -115,7 +115,9 @@ export default class GameManager {
                 let newY = entity.posY + Math.floor(entity.moveY * entity.speed);
 
                 if (PhysicsManager.isObstacleAtXY(entity, newX, newY)) {
-                    soundManager.play('../../resources/sounds/explosion.mp3');
+                    if (!this.isPause) {
+                        soundManager.play('../../resources/sounds/explosion.mp3', {volume:0.1, looping:false});
+                    }
                     let explosion = Object.create(this.factory['explosion']());
                     explosion.posX = newX;
                     explosion.posY = newY;
@@ -172,7 +174,17 @@ export default class GameManager {
             this.createFireball(this.player);
         }
         if (eventsManager.actions['pause'] && this.isPlaying) {
-            this.isPause = this.isPause ? false: true;
+            if (this.isPause) {
+                this.isPause = false;
+                soundManager.init();
+                soundManager.play('../../resources/sounds/pause_out.mp3', {volume:0.1, looping:false});
+                soundManager.play('../../resources/sounds/background.mp3', {looping: true, volume: 0.1});
+            } else  {
+                this.isPause = true;
+                soundManager.stopAll();
+                soundManager.init();
+                soundManager.play('../../resources/sounds/pause_in.mp3', {volume:0.1, looping:false});
+            }
         }
 
         PhysicsManager.update_pos(this.player);
