@@ -1,7 +1,7 @@
 import {eventsManager, mapManager, viewManager, soundManager} from '../game.js';
 import PhysicsManager from './physicsManager.js';
 import {BotTank, Fireball, Explosion} from '../entities.js';
-import {loadMap} from '../loaders.js'
+import nextLevel from "../game.js";
 
 export default class GameManager {
     constructor(level) {
@@ -31,8 +31,6 @@ export default class GameManager {
 
     play(ctx) {
         this.isPlaying = true;
-        this.isPause = false;
-        this.isWin = false;
 
         this.intervalIds[0] = setInterval(() => this.updateView(ctx), 50);
         this.intervalIds[1] = setInterval(() => this.updateEnemyTanksDecision(), 1000);
@@ -128,22 +126,29 @@ export default class GameManager {
         })
     }
 
-    updateLevel(ctx) {
+    clearManager() {
+        this.intervalIds.forEach(intervalId => {clearInterval(intervalId); intervalId = null});
         this.entities = [];
         this.laterKill = [];
         this.isWin = false;
-        this.level += 1;
-        this.intervalIds.forEach(intervalId => clearInterval(intervalId));
-        eventsManager.actions = eventsManager.actions.map(action => false);
-        loadMap(`../../resources/mapLevel${this.level}.json`);
-        mapManager.parseEntities();
+        this.isPlaying = false;
+        this.isPause = false;
     }
 
     updateView(ctx) {
         mapManager.draw(ctx);
         this.draw(ctx);
+
         if (!this.isPlaying) {
-            viewManager.renderLevelCompletion(ctx, this.level, (this.isWin) ? 'WIN' : 'GAME OVER');
+            viewManager.renderLevelCompletion(ctx, (this.isWin) ? 'WIN' : 'GAME OVER');
+            if (this.isPause) {
+                soundManager.init();
+                soundManager.play(`../../resources/sounds/${this.isWin ? 'level_win' : 'game_over'}.mp3`, {volume: 0.1, looping:false});
+                return;
+            }
+            soundManager.stopAll();
+            this.isPause = true;
+            return
         }
         if (this.isPause) {
             viewManager.renderLevelPause(ctx);
@@ -187,6 +192,15 @@ export default class GameManager {
             }
         }
 
+        if (eventsManager.actions['next_level'] && this.isWin) {
+            soundManager.stopAll();
+            nextLevel('next_level');
+        }
+        if (eventsManager.actions['restart'] && !this.isWin) {
+            soundManager.stopAll();
+            nextLevel('restart');
+        }
+
         PhysicsManager.update_pos(this.player);
 
         let another_entity = PhysicsManager.entityAtXY(this.player, this.player.posX, this.player.posY);
@@ -195,6 +209,7 @@ export default class GameManager {
             if (another_entity instanceof Explosion) {
                 this.laterKill.push(this.player);
                 this.isPlaying = false;
+                this.isWin = false;
             }
         }
 

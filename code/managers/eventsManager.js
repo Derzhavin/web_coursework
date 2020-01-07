@@ -11,7 +11,8 @@ export default class EventsManager {
         this.bind[68] = 'right'; // d
         this.bind[90] = 'shoot'; // z
         this.bind[13] = 'pause' // enter
-
+        this.bind[78] = 'next_level' // n
+        this.bind[82] = 'restart' // r
         document.body.addEventListener('keydown', e => this.onKeyDown(e));
     }
 

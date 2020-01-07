@@ -4,9 +4,11 @@ export default class ViewManager {
         this.sizeY = sizeY;
         this.gameStatusFont = '100px sans-serif';
         this.gameHelpFont = '30px sans-serif';
+        this.backgrounds = {};
+        this.imgsLoaded = false;
     }
 
-    renderLevelCompletion(ctx, level, text) {
+    renderLevelCompletion(ctx, text) {
         this.renderTranslucentCtx(ctx);
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
@@ -14,13 +16,12 @@ export default class ViewManager {
         ctx.fillText(text, this.sizeX / 2, this.sizeY / 2);
 
         let newText = "";
-        if (text === 'WIN' && level !== 2) {
-            newText = 'Press Space to go to the next level';
+        if (text === 'WIN') {
+            newText = 'Press N to go to continue';
         } else if (text === 'GAME OVER') {
-            newText = 'Press Enter to restart level';
-        } else  {
-            newText = 'Congratulations! You finished the game!'
+            newText = 'Press R to restart the game';
         }
+
         ctx.font = this.gameHelpFont;
         ctx.fillText(newText, this.sizeX / 2, this.sizeY / 3 * 2);
     }
@@ -37,5 +38,20 @@ export default class ViewManager {
     renderTranslucentCtx(ctx) {
         ctx.fillStyle = 'rgba(0, 0, 0, 0.50)';
         ctx.fillRect(0, 0, this.sizeX, this.sizeY);
+    }
+
+    renderGameCompletion(ctx) {
+        if (!this.imgsLoaded) {
+            setTimeout(() => this.renderGameCompletion(ctx), 100);
+        } else {
+            ctx.clearRect(0, 0, this.sizeX, this.sizeY);
+            let background = this.backgrounds['../../resources/imgs/crown.png'];
+            ctx.drawImage(background, this.sizeX / 2 - background.width / 2,this.sizeY / 2 - background.height /2);
+            ctx.fillStyle = 'rgba(0, 0, 0, 1)';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.font = this.gameHelpFont;
+            ctx.fillText('Congratulations! You finished the game!', this.sizeX / 2, this.sizeY / 6 * 5);
+        }
     }
 }

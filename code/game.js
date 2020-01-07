@@ -5,7 +5,8 @@ import EventsManager from './managers/eventsManager.js';
 import ViewManager from "./managers/viewManager.js";
 import SoundManager from "./managers/soundManager.js";
 import {Tank, BotTank, Fireball, Explosion} from './entities.js';
-import {loadMap, loadAtlas} from "./loaders.js";
+import {loadAtlas, loadViewBackgrounds, loadMap} from  "./loaders.js";
+import {sounds, viewBackgrounds, atlasImg, atlasJson} from './source.js';
 
 export let mapManager = new MapManager();
 export let gameManager = new GameManager(1);
@@ -18,26 +19,42 @@ const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
 
 soundManager.init();
-soundManager.loadArray([
-        '../../resources/sounds/background.mp3',
-        '../../resources/sounds/explosion.mp3',
-        '../../resources/sounds/game_over.mp3',
-        '../../resources/sounds/pause_in.mp3',
-        '../../resources/sounds/pause_out.mp3'
-]);
-loadMap('../../resources/mapLeveL1.json');
-loadAtlas('../../resources/atlas.json', '../../resources/spritesheet.png');
+soundManager.loadSounds(sounds);
+loadAtlas(atlasJson, atlasImg);
+loadViewBackgrounds(viewBackgrounds);
 createGameFactory();
-mapManager.parseEntities(); // разбор сущностей карты
-
-mapManager.draw(ctx); // отобразить карту
 eventsManager.setup(canvas);
 
-canvas.width = mapManager.mapSize.x;
-canvas.height = mapManager.mapSize.y;
+loadLevel();
 
-soundManager.play('../../resources/sounds/background.mp3', {looping: true, volume: 0.1});
-gameManager.play(ctx);
+function loadLevel() {
+    loadMap(`../../resources/descriptions/mapLevel${gameManager.level}.json`);
+    mapManager.parseEntities(); // разбор сущностей карты
+    mapManager.draw(ctx); // отобразить карту
+    canvas.width = mapManager.mapSize.x;
+    canvas.height = mapManager.mapSize.y;
+    soundManager.init();
+    soundManager.play('../../resources/sounds/background.mp3', {looping: true, volume: 0.1});
+    gameManager.play(ctx);
+}
+
+export default function nextLevel(action) {
+    gameManager.clearManager();
+    mapManager.mapData = null;
+    ctx.clearRect(0, 0, mapManager.mapSize.x, mapManager.mapSize.y);
+
+    if (action === 'next_level') {
+        gameManager.level += 1;
+    }
+    if (gameManager.level <= 2) {
+        loadLevel();
+        return
+    } else {
+        viewManager.renderGameCompletion(ctx);
+        soundManager.init();
+        soundManager.play('../../resources/sounds/game_win.mp3', {looping:true, volume: 0.2});
+    }
+}
 
 function createGameFactory() {
     gameManager.factory['tank'] = () =>

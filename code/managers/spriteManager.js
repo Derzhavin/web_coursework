@@ -1,3 +1,5 @@
+import {spriteManager} from "../game.js";
+
 export default class SpriteManager {
     constructor() {
         this.image = new Image();

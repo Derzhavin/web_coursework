@@ -45,7 +45,7 @@ export default class SoundManager {
     }
 
 
-    loadArray(array) {
+    loadSounds(array) {
         for (let i = 0; i < array.length; i++) {
             this.load(array[i], () => {
                 if (array.length === Object.keys(this.clips).length) {
