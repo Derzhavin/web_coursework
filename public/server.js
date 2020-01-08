@@ -16,6 +16,10 @@ server.get('/game', function(req, res, next) {
     res.sendFile(path.join(__dirname, 'pages/game.html'));
 });
 
+server.get('/records', function(req, res, next) {
+    res.sendFile(path.join(__dirname, 'pages/records.html'));
+});
+
 server.listen(3000, function () {
     console.log('Listening on port 3000!');
 });

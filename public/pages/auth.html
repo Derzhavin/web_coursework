@@ -7,8 +7,9 @@
 <body>
 <script>
     function store() {
-        localStorage["Battle_city.username"]
-            = document.getElementById("username").value;
+        localStorage["RIP_tanks.username"] = document.getElementById("username").value;
+
+        localStorage['RIP_tanks.record.' + document.getElementById("username").value] = 500;
     }
 </script>
 <img src="resources/imgs/preview.png" width="200" height="200"/>
