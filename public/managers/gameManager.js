@@ -1,8 +1,7 @@
-import {eventsManager, mapManager, viewManager, soundManager} from '../game.js';
+import {eventsManager, mapManager, viewManager, soundManager, recordManager} from '../game.js';
 import PhysicsManager from './physicsManager.js';
 import {BotTank, Fireball, Explosion} from '../entities.js';
 import nextLevel from "../game.js";
-import {gameManager} from "../game";
 
 export default class GameManager {
     constructor(level) {
@@ -141,6 +140,7 @@ export default class GameManager {
     updateView(ctx) {
         mapManager.draw(ctx);
         this.draw(ctx);
+        viewManager.renderLevelInfo(ctx);
 
         if (!this.isPlaying) {
             viewManager.renderLevelCompletion(ctx, (this.isWin) ? 'WIN' : 'GAME OVER');
@@ -184,11 +184,13 @@ export default class GameManager {
         if (eventsManager.actions['pause'] && this.isPlaying) {
             if (this.isPause) {
                 this.isPause = false;
+                recordManager.resume();
                 soundManager.init();
                 soundManager.play('../../resources/sounds/pause_out.mp3', {volume:0.1, looping:false});
                 soundManager.play('../../resources/sounds/background.mp3', {looping: true, volume: 0.1});
             } else  {
                 this.isPause = true;
+                recordManager.pause();
                 soundManager.stopAll();
                 soundManager.init();
                 soundManager.play('../../resources/sounds/pause_in.mp3', {volume:0.1, looping:false});
