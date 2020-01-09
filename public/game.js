@@ -16,7 +16,7 @@ export let viewManager = new ViewManager(768, 768);
 export let soundManager = new SoundManager();
 
 const canvas = document.querySelector('canvas');
-const ctx = canvas.getContext('2d');
+let ctx = canvas.getContext('2d');
 
 soundManager.init();
 soundManager.loadSounds(sounds);
@@ -30,17 +30,13 @@ loadLevel();
 function loadLevel() {
     loadMap(`../../resources/descriptions/mapLevel${gameManager.level}.json`);
     mapManager.parseEntities(); // разбор сущностей карты
-    mapManager.draw(ctx); // отобразить карту
     canvas.width = mapManager.mapSize.x;
     canvas.height = mapManager.mapSize.y;
-    soundManager.init();
-    soundManager.play('../../resources/sounds/background.mp3', {looping: true, volume: 0.1});
     gameManager.play(ctx);
 }
 
 export default function nextLevel(action) {
     gameManager.clearManager();
-    mapManager.mapData = null;
     ctx.clearRect(0, 0, mapManager.mapSize.x, mapManager.mapSize.y);
 
     if (action === 'next_level') {
@@ -48,11 +44,10 @@ export default function nextLevel(action) {
     }
     if (gameManager.level <= 2) {
         loadLevel();
-        return
     } else {
         viewManager.renderGameCompletion(ctx);
         soundManager.init();
-        soundManager.play('../../resources/sounds/game_win.mp3', {looping:true, volume: 0.2});
+        soundManager.play('../../resources/sounds/game_win.mp3', {looping:true, volume: 1});
     }
 }
 

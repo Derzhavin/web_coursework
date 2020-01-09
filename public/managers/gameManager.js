@@ -2,6 +2,7 @@ import {eventsManager, mapManager, viewManager, soundManager} from '../game.js';
 import PhysicsManager from './physicsManager.js';
 import {BotTank, Fireball, Explosion} from '../entities.js';
 import nextLevel from "../game.js";
+import {gameManager} from "../game";
 
 export default class GameManager {
     constructor(level) {
@@ -30,6 +31,8 @@ export default class GameManager {
     }
 
     play(ctx) {
+        soundManager.init();
+        soundManager.play('../../resources/sounds/background.mp3', {looping: true, volume: 0.1});
         this.isPlaying = true;
 
         this.intervalIds[0] = setInterval(() => this.updateView(ctx), 50);
@@ -210,6 +213,7 @@ export default class GameManager {
                 this.laterKill.push(this.player);
                 this.isPlaying = false;
                 this.isWin = false;
+                soundManager.play()
             }
         }
 

@@ -1,4 +1,4 @@
-import { gameManager, viewManager } from '../game.js';
+import {gameManager, viewManager} from '../game.js';
 
 export default class MapManager {
     constructor() {
@@ -12,7 +12,6 @@ export default class MapManager {
         this.imgLoadCount = 0; // количество загруженных изображений
         this.imgLoaded = false; // все изображения загружены
         this.jsonLoaded = false; // json описание загружено
-        this.maps = {};
     }
 
     parseMap(tilesJSON) {
@@ -89,18 +88,16 @@ export default class MapManager {
             //если карта не была загружена, повторяем вызов
             setTimeout(() => this.draw(ctx), 100);
         } else {
-            ctx.drawImage(viewManager.backgrounds['../../resources/imgs/ground.png'],0,0);
+            ctx.drawImage(viewManager.backgrounds['../../resources/imgs/ground.png'], 0, 0);
             ctx.lineWidth = 4;
             ctx.strokeStyle = '#000000';
             ctx.strokeRect(0, 0, this.mapSize.x, this.mapSize.y);
 
-            if (this.tLayer === null) { // при первом обращении к draw верно
-                for (let id = 0; id < this.mapData.layers.length; id++) {
-                    const layer = this.mapData.layers[id];
-                    if (layer.type === 'tilelayer') { // слой блоков карты
-                        this.tLayer = layer;
-                        break;
-                    }
+            for (let id = 0; id < this.mapData.layers.length; id++) {
+                const layer = this.mapData.layers[id];
+                if (layer.type === 'tilelayer') { // слой блоков карты
+                    this.tLayer = layer;
+                    break;
                 }
             }
 
