@@ -1,10 +1,11 @@
-import {eventsManager, mapManager, viewManager} from '../game.js';
+import {eventsManager, mapManager, viewManager, soundManager} from '../game.js';
 import PhysicsManager from './physicsManager.js';
 import {BotTank, Fireball, Explosion} from '../entities.js';
-
+import nextLevel from "../game.js";
+import {gameManager} from "../game";
 
 export default class GameManager {
-    constructor() {
+    constructor(level) {
         this.factory = {}; // фабрика объектов на карте
         this.entities = []; // объекты на карте (не убитые)
         this.player = null;
@@ -12,6 +13,8 @@ export default class GameManager {
         this.isWin = false;
         this.isPlaying = false;
         this.isPause = false;
+        this.level = level;
+        this.intervalIds = [];
     }
 
     initPlayer(obj) {
@@ -28,15 +31,17 @@ export default class GameManager {
     }
 
     play(ctx) {
+        soundManager.init();
+        soundManager.play('../../resources/sounds/background.mp3', {looping: true, volume: 0.1});
         this.isPlaying = true;
 
-        setInterval(() => this.updateView(ctx), 50);
-        setInterval(() => this.updateEnemyTanksDecision(), 1000);
-        setInterval(() => this.updateEnemyTanksPhysics(), 50);
-        setInterval(() => this.updatePlayer(), 50);
-        setInterval(() => this.updateExplosions(), 50);
-        setInterval(() => this.updateFireballs(), 100);
-        setInterval(() => this.updateLaterKill(), 50);
+        this.intervalIds[0] = setInterval(() => this.updateView(ctx), 50);
+        this.intervalIds[1] = setInterval(() => this.updateEnemyTanksDecision(), 1000);
+        this.intervalIds[2] = setInterval(() => this.updateEnemyTanksPhysics(), 50);
+        this.intervalIds[3] = setInterval(() => this.updatePlayer(), 50);
+        this.intervalIds[4] = setInterval(() => this.updateExplosions(), 50);
+        this.intervalIds[5] = setInterval(() => this.updateFireballs(), 100);
+        this.intervalIds[6] = setInterval(() => this.updateLaterKill(), 50);
     }
 
     updateLaterKill() {
@@ -111,6 +116,9 @@ export default class GameManager {
                 let newY = entity.posY + Math.floor(entity.moveY * entity.speed);
 
                 if (PhysicsManager.isObstacleAtXY(entity, newX, newY)) {
+                    if (!this.isPause) {
+                        soundManager.play('../../resources/sounds/explosion.mp3', {volume:0.1, looping:false});
+                    }
                     let explosion = Object.create(this.factory['explosion']());
                     explosion.posX = newX;
                     explosion.posY = newY;
@@ -121,15 +129,32 @@ export default class GameManager {
         })
     }
 
+    clearManager() {
+        this.intervalIds.forEach(intervalId => {clearInterval(intervalId); intervalId = null});
+        this.entities = [];
+        this.laterKill = [];
+        this.isWin = false;
+        this.isPlaying = false;
+        this.isPause = false;
+    }
+
     updateView(ctx) {
         mapManager.draw(ctx);
         this.draw(ctx);
 
         if (!this.isPlaying) {
             viewManager.renderLevelCompletion(ctx, (this.isWin) ? 'WIN' : 'GAME OVER');
+            if (this.isPause) {
+                soundManager.init();
+                soundManager.play(`../../resources/sounds/${this.isWin ? 'level_win' : 'game_over'}.mp3`, {volume: 0.1, looping:false});
+                return;
+            }
+            soundManager.stopAll();
+            this.isPause = true;
+            return
         }
         if (this.isPause) {
-            viewManager.renderLevelPause(ctx, 'PAUSE');
+            viewManager.renderLevelPause(ctx);
         }
     }
 
@@ -157,7 +182,26 @@ export default class GameManager {
             this.createFireball(this.player);
         }
         if (eventsManager.actions['pause'] && this.isPlaying) {
-            this.isPause = this.isPause ? false: true;
+            if (this.isPause) {
+                this.isPause = false;
+                soundManager.init();
+                soundManager.play('../../resources/sounds/pause_out.mp3', {volume:0.1, looping:false});
+                soundManager.play('../../resources/sounds/background.mp3', {looping: true, volume: 0.1});
+            } else  {
+                this.isPause = true;
+                soundManager.stopAll();
+                soundManager.init();
+                soundManager.play('../../resources/sounds/pause_in.mp3', {volume:0.1, looping:false});
+            }
+        }
+
+        if (eventsManager.actions['next_level'] && this.isWin) {
+            soundManager.stopAll();
+            nextLevel('next_level');
+        }
+        if (eventsManager.actions['restart'] && !this.isWin) {
+            soundManager.stopAll();
+            nextLevel('restart');
         }
 
         PhysicsManager.update_pos(this.player);
@@ -168,12 +212,13 @@ export default class GameManager {
             if (another_entity instanceof Explosion) {
                 this.laterKill.push(this.player);
                 this.isPlaying = false;
+                this.isWin = false;
+                soundManager.play()
             }
         }
 
         eventsManager.actions = eventsManager.actions.map(action => false);
     }
-
 
     createFireball(entity) {
         let fireball = Object.create(this.factory['fireball']());

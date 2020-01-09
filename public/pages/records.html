@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>RIP tanks</title>
+</head>
+<body>
+<div  class="bg_records">
+    <button class="game_button" onclick="window.location.href = 'menu.html'">back</button>
+    <br>
+    <br>
+    <table id="table_records">
+        <tr>
+            <th>player</th>
+            <th>time</th>
+        </tr>
+    </table>
+</div>
+<link rel="stylesheet" href="../style.css">
+
+<script>
+    let table = document.getElementById('table_records');
+
+    let recordsAndPlayers =[];
+    for(let i = 0; i < localStorage.length; i++) {
+        let key = localStorage.key(i);
+        if  (/^(RIP_tanks.record.*)/.test(key)) {
+            recordsAndPlayers.push([key.slice(17, key.length), localStorage[key]]);
+        }
+    }
+
+    recordsAndPlayers.sort((a, b) => {return b[1] -a[1]});
+    recordsAndPlayers.forEach((item) =>{
+        let row = table.insertRow(-1);
+        let playerCell = row.insertCell(0);
+        playerCell.innerHTML = item[0];
+        let recordCell = row.insertCell(1);
+        recordCell.innerHTML = item[1];
+    });
+
+</script>
+</body>
+</html>

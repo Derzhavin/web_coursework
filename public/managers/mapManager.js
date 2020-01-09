@@ -1,4 +1,4 @@
-import { gameManager } from '../game.js';
+import {gameManager, viewManager} from '../game.js';
 
 export default class MapManager {
     constructor() {
@@ -8,7 +8,6 @@ export default class MapManager {
         this.yCount = 0; // по вертикали
         this.tSize = {x: 50, y: 50}; // размер блока
         this.mapSize = {x: 768, y: 768}; // Размер карты в пикселях
-        this.background = null;
         this.tilesets = []; // массив описаний блоков карты
         this.imgLoadCount = 0; // количество загруженных изображений
         this.imgLoaded = false; // все изображения загружены
@@ -46,9 +45,6 @@ export default class MapManager {
             };
             this.tilesets.push(ts);
         }
-
-        this.background = new Image();
-        this.background.src = '../../resources/ground.png';
 
         this.jsonLoaded = true;
     }
@@ -88,22 +84,20 @@ export default class MapManager {
     * отрисовка карты в контексте
     */
     draw(ctx) {
-        if (!this.imgLoaded || !this.jsonLoaded) {
+        if (!this.imgLoaded || !this.jsonLoaded || !viewManager.imgsLoaded) {
             //если карта не была загружена, повторяем вызов
             setTimeout(() => this.draw(ctx), 100);
         } else {
-            ctx.drawImage(this.background,0,0);
+            ctx.drawImage(viewManager.backgrounds['../../resources/imgs/ground.png'], 0, 0);
             ctx.lineWidth = 4;
             ctx.strokeStyle = '#000000';
             ctx.strokeRect(0, 0, this.mapSize.x, this.mapSize.y);
 
-            if (this.tLayer === null) { // при первом обращении к draw верно
-                for (let id = 0; id < this.mapData.layers.length; id++) {
-                    const layer = this.mapData.layers[id];
-                    if (layer.type === 'tilelayer') { // слой блоков карты
-                        this.tLayer = layer;
-                        break;
-                    }
+            for (let id = 0; id < this.mapData.layers.length; id++) {
+                const layer = this.mapData.layers[id];
+                if (layer.type === 'tilelayer') { // слой блоков карты
+                    this.tLayer = layer;
+                    break;
                 }
             }
 

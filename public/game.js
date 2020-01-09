@@ -3,32 +3,52 @@ import MapManager from './managers/mapManager.js';
 import SpriteManager from './managers/spriteManager.js';
 import EventsManager from './managers/eventsManager.js';
 import ViewManager from "./managers/viewManager.js";
+import SoundManager from "./managers/soundManager.js";
 import {Tank, BotTank, Fireball, Explosion} from './entities.js';
+import {loadAtlas, loadViewBackgrounds, loadMap} from  "./loaders.js";
+import {sounds, viewBackgrounds, atlasImg, atlasJson} from './source.js';
 
 export let mapManager = new MapManager();
-export let gameManager = new GameManager();
+export let gameManager = new GameManager(1);
 export let spriteManager = new SpriteManager();
 export let eventsManager = new EventsManager();
 export let viewManager = new ViewManager(768, 768);
+export let soundManager = new SoundManager();
 
 const canvas = document.querySelector('canvas');
-const ctx = canvas.getContext('2d');
+let ctx = canvas.getContext('2d');
 
-loadAll();
-canvas.width = mapManager.mapSize.x;
-canvas.height = mapManager.mapSize.y;
+soundManager.init();
+soundManager.loadSounds(sounds);
+loadAtlas(atlasJson, atlasImg);
+loadViewBackgrounds(viewBackgrounds);
+createGameFactory();
+eventsManager.setup(canvas);
 
-gameManager.play(ctx);
+loadLevel();
 
-function loadAll() {
-    loadMap('../../resources/map.json');
-    loadAtlas('../../resources/atlas.json', '../../resources/spritesheet.png');
-    createGameFactory();
-
+function loadLevel() {
+    loadMap(`../../resources/descriptions/mapLevel${gameManager.level}.json`);
     mapManager.parseEntities(); // разбор сущностей карты
-    mapManager.draw(ctx); // отобразить карту
+    canvas.width = mapManager.mapSize.x;
+    canvas.height = mapManager.mapSize.y;
+    gameManager.play(ctx);
+}
 
-    eventsManager.setup(canvas);
+export default function nextLevel(action) {
+    gameManager.clearManager();
+    ctx.clearRect(0, 0, mapManager.mapSize.x, mapManager.mapSize.y);
+
+    if (action === 'next_level') {
+        gameManager.level += 1;
+    }
+    if (gameManager.level <= 2) {
+        loadLevel();
+    } else {
+        viewManager.renderGameCompletion(ctx);
+        soundManager.init();
+        soundManager.play('../../resources/sounds/game_win.mp3', {looping:true, volume: 1});
+    }
 }
 
 function createGameFactory() {
@@ -84,26 +104,4 @@ function createGameFactory() {
             spriteBaseName: 'explosion',
             stageChangeSpeed: 50
         });
-}
-function loadMap(path) {
-    let request = new XMLHttpRequest();
-    request.onreadystatechange = function () {
-        if (request.readyState === 4 && request.status === 200) {
-            mapManager.parseMap(JSON.parse(request.responseText));
-        }
-    };
-    request.open("GET", path, true);
-    request.send();
-}
-
-function loadAtlas(atlasJson, atlasImg) {
-    let request = new XMLHttpRequest();
-    request.onreadystatechange = function () {
-        if (request.readyState === 4 && request.status === 200) {
-            spriteManager.parseAtlas(JSON.parse(request.responseText));
-        }
-    };
-    request.open("GET", atlasJson, true);
-    request.send();
-    spriteManager.loadImage(atlasImg);
 }

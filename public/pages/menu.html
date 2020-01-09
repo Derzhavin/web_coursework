@@ -2,10 +2,13 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Battle city</title>
+    <title>RIP tanks</title>
 </head>
 <body>
-<div style="text-align: center;">
+<div class="bg_menu">
+    <button class="game_button" onclick="window.location.href = 'records.html'">records</button>
+    <br>
+    <br>
     <button class="game_button" onclick="showRules()">rules</button>
     <br>
     <br>
@@ -13,6 +16,7 @@
     <br>
     <br>
     <button class="game_button" onclick="window.location.href = 'game.html'">play</button>
+
 </div>
 <script>
     function showGameControl() {
@@ -20,17 +24,22 @@
             "up - w;\n" +
             "down - s;\n" +
             "left - a;\n" +
-            "right - d."
+            "right - d;\n" +
+            "next level - n;\n" +
+            "restart - r;\n" +
+            "pause - enter."
         )
     }
+
     function showRules() {
         alert("Control your tank," +
             "try to kill all " +
             "enemy tanks and " +
             "remember to hurry up " +
-            "because time is limited.")
+            "because somebody may be faster " +
+            "than you!")
     }
 </script>
-<link rel="stylesheet" href="../css/index.css">
+<link rel="stylesheet" href="../style.css">
 </body>
 </html>
