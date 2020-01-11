@@ -55,11 +55,12 @@ export default class ViewManager {
             ctx.textBaseline = 'middle';
             ctx.font = this.gameHelpFont;
             ctx.fillText('Congratulations! You finished the game!', this.sizeX / 2, this.sizeY / 6 * 5);
+	    ctx.fillText(`Your game time is ${recordManager.getFormatLevelDuration()}!`, this.sizeX / 2, this.sizeY / 8 * 7);
         }
     }
 
     renderLevelInfo(ctx) {
-        let text = `level ${gameManager.level} / time ` + recordManager.getFormatLevelDuration();
+        let text = `level ${gameManager.level} / time ` + recordManager.getFormatDuration();
         ctx.fillStyle = 'rgba(0, 0, 0, 1)';
         ctx.font = this.gameLevelInfoFont;
         ctx.textAlign = 'left';

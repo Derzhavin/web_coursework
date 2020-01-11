@@ -29,7 +29,9 @@
         }
     }
 
-    recordsAndPlayers.sort((a, b) => {return b[1] -a[1]});
+    recordsAndPlayers.sort((a, b) => {
+        let time
+        return b[1] -a[1]});
     recordsAndPlayers.forEach((item) =>{
         let row = table.insertRow(-1);
         let playerCell = row.insertCell(0);

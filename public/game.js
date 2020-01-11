@@ -53,6 +53,7 @@ export default function nextLevel(action) {
         viewManager.renderGameCompletion(ctx);
         soundManager.init();
         soundManager.play('../../resources/sounds/game_win.mp3', {looping:true, volume: 1});
+        recordManager.updateRecordInLC();
     }
 }
 

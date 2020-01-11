@@ -33,7 +33,7 @@ export default class RecordManager {
         this.isPause = false;
     }
 
-    getFormatLevelDuration() {
+    getFormatDuration() {
         let time = this.levelDuration() / 1000;
         let hours = Math.floor(time / 3600);
         let minutes = Math.floor((time - hours * 60 * 60) / 60);
@@ -44,5 +44,18 @@ export default class RecordManager {
 
     incLevelsSumDuration() {
         this.levelsSumDuration += this.levelDuration();
+    }
+
+    updateRecordInLC() {
+        let oldRecord = localStorage['RIP_tanks.records.' + localStorage['RIP_tanks.username']];
+        let timeDataArr = oldRecord.split(':');
+	let seconds = timeDataArr[2];
+        let minutes = timeDataArr[1];
+        let hours = timeDataArr[0];
+	let lastRecordInSeconds = seconds + minutes * 60 + hours * 3600;
+		
+	if (this.levelsSumDuration > lastRecordInSeconds) {
+	    localStorage['RIP_tanks.records.' + localStorage['RIP_tanks.username']] = this.getFormatDuration();
+	}
     }
 }
