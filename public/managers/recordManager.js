@@ -48,14 +48,15 @@ export default class RecordManager {
 
     updateRecordInLC() {
         let oldRecord = localStorage['RIP_tanks.records.' + localStorage['RIP_tanks.username']];
-        let timeDataArr = oldRecord.split(':');
-	let seconds = timeDataArr[2];
-        let minutes = timeDataArr[1];
-        let hours = timeDataArr[0];
-	let lastRecordInSeconds = seconds + minutes * 60 + hours * 3600;
+	    let lastRecordInSeconds = RecordManager.strRecordToSeconds(oldRecord);
 		
-	if (this.levelsSumDuration > lastRecordInSeconds) {
-	    localStorage['RIP_tanks.records.' + localStorage['RIP_tanks.username']] = this.getFormatDuration();
-	}
+        if (this.levelsSumDuration > lastRecordInSeconds) {
+            localStorage['RIP_tanks.records.' + localStorage['RIP_tanks.username']] = this.getFormatDuration();
+        }
+    }
+
+    static strRecordToSeconds(str) {
+        let timeDataArr = str.split(':');
+        return timeDataArr[0] + timeDataArr[1] * 60 + timeDataArr[2] * 3600;
     }
 }

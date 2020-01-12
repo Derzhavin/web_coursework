@@ -19,6 +19,11 @@
 <link rel="stylesheet" href="../style.css">
 
 <script>
+    function strRecordToSeconds(str) {
+        let timeDataArr = str.split(':');
+        return timeDataArr[0] + timeDataArr[1] * 60 + timeDataArr[2] * 3600;
+    }
+
     let table = document.getElementById('table_records');
 
     let recordsAndPlayers =[];
@@ -30,8 +35,11 @@
     }
 
     recordsAndPlayers.sort((a, b) => {
-        let time
-        return b[1] -a[1]});
+        let aRecordInSeconds = strRecordToSeconds(a[1]);
+        let bRecordInSeconds = strRecordToSeconds(b[1]);
+
+        return bRecordInSeconds - bRecordInSeconds
+    });
     recordsAndPlayers.forEach((item) =>{
         let row = table.insertRow(-1);
         let playerCell = row.insertCell(0);
@@ -39,7 +47,6 @@
         let recordCell = row.insertCell(1);
         recordCell.innerHTML = item[1];
     });
-
 </script>
 </body>
 </html>
