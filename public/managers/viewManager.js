@@ -1,9 +1,12 @@
+import {recordManager, gameManager} from "../game.js";
+
 export default class ViewManager {
     constructor(sizeX, sizeY) {
         this.sizeX = sizeX;
         this.sizeY = sizeY;
         this.gameStatusFont = '100px sans-serif';
         this.gameHelpFont = '30px sans-serif';
+        this.gameLevelInfoFont = '30px sans-serif';
         this.backgrounds = {};
         this.imgsLoaded = false;
     }
@@ -52,6 +55,15 @@ export default class ViewManager {
             ctx.textBaseline = 'middle';
             ctx.font = this.gameHelpFont;
             ctx.fillText('Congratulations! You finished the game!', this.sizeX / 2, this.sizeY / 6 * 5);
+	    ctx.fillText(`Your game time is ${recordManager.getFormatDuration()}!`, this.sizeX / 2, this.sizeY / 8 * 7);
         }
+    }
+
+    renderLevelInfo(ctx) {
+        let text = `level ${gameManager.level} / time ` + recordManager.getFormatDuration();
+        ctx.fillStyle = 'rgba(0, 0, 0, 1)';
+        ctx.font = this.gameLevelInfoFont;
+        ctx.textAlign = 'left';
+        ctx.fillText(text, 5, 30);
     }
 }
