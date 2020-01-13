@@ -1,10 +1,11 @@
-import {eventsManager, mapManager, viewManager, soundManager, recordManager} from '../game.js';
+import {eventsManager, mapManager, viewManager, soundManager} from '../game.js';
 import PhysicsManager from './physicsManager.js';
 import {BotTank, Fireball, Explosion} from '../entities.js';
-import nextLevel from "../game.js";
+import {loadMap} from "../loaders.js";
+import {updateRecordInLC} from "./recordManager.js"
 
 export default class GameManager {
-    constructor(level) {
+    constructor(level, maxLevel, ctx) {
         this.factory = {}; // фабрика объектов на карте
         this.entities = []; // объекты на карте (не убитые)
         this.player = null;
@@ -13,7 +14,21 @@ export default class GameManager {
         this.isPlaying = false;
         this.isPause = false;
         this.level = level;
-        this.intervalIds = [];
+        this.isOneTimeActionsAtTheEndComplete = false;
+        this.ctx = ctx;
+        this.final = false;
+        this.maxLevel = maxLevel;
+        this.lastTimeUpdated = Date.now();
+        this.lastTimeUpdates = {
+            'player': 0,
+            'tanks decision': 0,
+            'tank physics': 0,
+            'fireballs': 0,
+            'explosions': 0,
+            'later kill': 0,
+            'view': 0
+        };
+        this.summaryTime = 0;
     }
 
     initPlayer(obj) {
@@ -29,30 +44,137 @@ export default class GameManager {
             this.entities[e].draw(ctx);
     }
 
-    play(ctx) {
-        soundManager.init();
-        soundManager.play('../../resources/sounds/background.mp3', {looping: true, volume: 0.1});
-        this.isPlaying = true;
+    initLevel() {
+        loadMap(`../../resources/descriptions/mapLevel${this.level}.json`);
+        mapManager.parseEntities();
+        soundManager.init()
+    }
 
-        this.intervalIds[0] = setInterval(() => this.updateView(ctx), 50);
-        this.intervalIds[1] = setInterval(() => this.updateEnemyTanksDecision(), 1000);
-        this.intervalIds[2] = setInterval(() => this.updateEnemyTanksPhysics(), 50);
-        this.intervalIds[3] = setInterval(() => this.updatePlayer(), 50);
-        this.intervalIds[4] = setInterval(() => this.updateExplosions(), 50);
-        this.intervalIds[5] = setInterval(() => this.updateFireballs(), 100);
-        this.intervalIds[6] = setInterval(() => this.updateLaterKill(), 50);
+    play() {
+        this.levelTime = 0;
+        this.isPlaying = true;
+        this.isPause = false;
+        this.isOneTimeActionsAtTheEndComplete = false;
+
+        this.initLevel();
+        soundManager.playBackgroundMusic()
+        this.updateAll(this.ctx);
+    }
+
+    nextLevel(action) {
+        soundManager.stopAll();
+        soundManager.lastMusic = null;
+
+        let isWinCopy = this.isWin;
+
+        this.entities = [];
+        this.laterKill = [];
+        this.isWin = false;
+        this.isPlaying = false;
+        this.isPause = false;
+
+        if (action === 'restart' && !this.isWin) {
+            soundManager.stopAll();
+            this.level = 1;
+        } else if (action === 'next_level') {
+            if (isWinCopy && (this.level == this.maxLevel)) {
+                this.final = true;
+                this.isOneTimeActionsAtTheEndComplete = true;
+                return;
+            } else {
+                this.level += 1;
+            }
+        }
+
+        this.play()
+    }
+
+    isBotTanksExist() {
+        for (let i = 0; i < this.entities.length; i++) {
+            if (this.entities[i] instanceof BotTank) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    updateAll(ctx) {
+        let currentTime = Date.now();
+        let deltaTime = currentTime - this.lastTimeUpdated;
+
+        if (this.final) {
+            viewManager.renderGameCompletion(ctx);
+            soundManager.playGameFinalMusic();
+            if (this.final && eventsManager.actions['restart']) {
+                updateRecordInLC(this.levelTime);
+                this.final = false;
+                this.summaryTime = 0;
+                this.nextLevel('restart');
+            }
+        } else {
+            if (!this.isPause) {
+                this.levelTime += deltaTime;
+            }
+
+            if (this.player) {
+                if (currentTime - this.lastTimeUpdates['player'] > 29) {
+                    this.lastTimeUpdates['player'] = currentTime;
+                    this.updatePlayer();
+                }
+                if (!this.isPause) {
+                    if (currentTime - this.lastTimeUpdates['tanks decision'] > 999) {
+                        this.lastTimeUpdates['tanks decision'] = currentTime;
+                        this.updateEnemyTanksDecision();
+                    }
+                    if (currentTime - this.lastTimeUpdates['tank physics'] > 29) {
+                        this.lastTimeUpdates['tank physics'] = currentTime;
+                        this.updateEnemyTanksPhysics();
+                    }
+                    if (currentTime - this.lastTimeUpdates['fireballs'] > 49) {
+                        this.lastTimeUpdates['fireballs'] = currentTime;
+                        this.updateFireballs()
+                    }
+                    if (currentTime - this.lastTimeUpdates['explosions'] > 99) {
+                        this.lastTimeUpdates['explosions'] = currentTime;
+                        this.updateExplosions();
+                    }
+                }
+
+                if (currentTime - this.lastTimeUpdates['later kill'] > 29) {
+                    this.lastTimeUpdates['later kill'] = currentTime;
+                    this.updateLaterKill();
+                }
+
+                if (!this.isBotTanksExist()) {
+                    this.isPlaying = false;
+                    this.isPause = true;
+                    this.isWin = true;
+                }
+
+                if (!this.isPlaying && !this.isOneTimeActionsAtTheEndComplete) {
+                    soundManager.stopAll();
+                    soundManager.playLevelFinalMusic(this.isWin);
+                    this.isOneTimeActionsAtTheEndComplete = true;
+                }
+            }
+
+            if (currentTime - this.lastTimeUpdates['view'] > 29) {
+                this.lastTimeUpdates['view'] = currentTime;
+                this.updateView(ctx);
+            }
+
+        }
+        this.lastTimeUpdated = Date.now();
+        requestAnimationFrame(() => this.updateAll(ctx));
     }
 
     updateLaterKill() {
-        // удаление накопившихся объектов для удаления
         for (let i = 0; i < this.laterKill.length; i++) {
             const idx = this.entities.indexOf(this.laterKill[i]);
             if (idx > -1) {
                 this.entities.splice(idx, 1);
             }
         }
-
-        // очистка массива
         if (this.laterKill.length) this.laterKill.length = 0;
     }
 
@@ -65,45 +187,34 @@ export default class GameManager {
                     this.createFireball(entity);
                 }
             }
-        })
+        });
     }
 
     updateEnemyTanksPhysics() {
-        if (this.player) {
-            let botTankExist = false;
-            this.entities.forEach(entity => {
-                if (entity instanceof BotTank) {
-                    botTankExist = true;
-                    PhysicsManager.update_pos(entity);
-                    let another_entity = PhysicsManager.entityAtXY(entity, entity.posX, entity.posY);
+        this.entities.forEach(entity => {
+            if (entity instanceof BotTank) {
+                PhysicsManager.update_pos(entity);
+                let another_entity = PhysicsManager.entityAtXY(entity, entity.posX, entity.posY);
 
-                    if (another_entity) {
-                        if (another_entity instanceof Explosion) {
-                            this.laterKill.push(entity);
-                        }
+                if (another_entity) {
+                    if (another_entity instanceof Explosion) {
+                        this.kill(entity);
                     }
                 }
-            })
-
-            if (!botTankExist) {
-                this.isPlaying = false;
-                this.isWin = true;
             }
-        }
+        })
     }
 
     updateExplosions() {
-        if (!this.isPause) {
-            this.entities.forEach(entity => {
-                if (entity instanceof Explosion) {
-                    entity.stage += 1;
+        this.entities.forEach(entity => {
+            if (entity instanceof Explosion) {
+                entity.stage += 1;
 
-                    if (entity.stage === 3) {
-                        this.laterKill.push(entity);
-                    }
+                if (entity.stage === 3) {
+                    this.kill(entity);
                 }
-            });
-        }
+            }
+        });
     }
 
     updateFireballs() {
@@ -115,26 +226,15 @@ export default class GameManager {
                 let newY = entity.posY + Math.floor(entity.moveY * entity.speed);
 
                 if (PhysicsManager.isObstacleAtXY(entity, newX, newY)) {
-                    if (!this.isPause) {
-                        soundManager.play('../../resources/sounds/explosion.mp3', {volume:0.1, looping:false});
-                    }
+                    soundManager.play('../../resources/sounds/explosion.mp3', {volume: 0.1, looping: false});
                     let explosion = Object.create(this.factory['explosion']());
                     explosion.posX = newX;
                     explosion.posY = newY;
                     this.entities.push(explosion);
-                    this.laterKill.push(entity);
+                    this.kill(entity);
                 }
             }
         })
-    }
-
-    clearManager() {
-        this.intervalIds.forEach(intervalId => {clearInterval(intervalId); intervalId = null});
-        this.entities = [];
-        this.laterKill = [];
-        this.isWin = false;
-        this.isPlaying = false;
-        this.isPause = false;
     }
 
     updateView(ctx) {
@@ -142,15 +242,8 @@ export default class GameManager {
         this.draw(ctx);
         viewManager.renderLevelInfo(ctx);
 
-        if (!this.isPlaying) {
+        if (!this.isPlaying && this.isPause) {
             viewManager.renderLevelCompletion(ctx, (this.isWin) ? 'WIN' : 'GAME OVER');
-            if (this.isPause) {
-                soundManager.init();
-                soundManager.play(`../../resources/sounds/${this.isWin ? 'level_win' : 'game_over'}.mp3`, {volume: 0.1, looping:false});
-                return;
-            }
-            soundManager.stopAll();
-            this.isPause = true;
             return
         }
         if (this.isPause) {
@@ -160,9 +253,8 @@ export default class GameManager {
 
     updatePlayer() {
         if (!this.player) {
-            return;
+            return
         }
-
         this.player.moveX = 0;
         this.player.moveY = 0;
 
@@ -184,26 +276,20 @@ export default class GameManager {
         if (eventsManager.actions['pause'] && this.isPlaying) {
             if (this.isPause) {
                 this.isPause = false;
-                recordManager.resume();
-                soundManager.init();
-                soundManager.play('../../resources/sounds/pause_out.mp3', {volume:0.1, looping:false});
-                soundManager.play('../../resources/sounds/background.mp3', {looping: true, volume: 0.1});
-            } else  {
+                soundManager.playPauseOutMusic();
+            } else {
                 this.isPause = true;
-                recordManager.pause();
-                soundManager.stopAll();
-                soundManager.init();
-                soundManager.play('../../resources/sounds/pause_in.mp3', {volume:0.1, looping:false});
+                soundManager.playPauseInMusic()
             }
         }
 
         if (eventsManager.actions['next_level'] && this.isWin) {
-            soundManager.stopAll();
-            nextLevel('next_level');
+            this.summaryTime += this.levelTime;
+            this.nextLevel('next_level');
         }
         if (eventsManager.actions['restart'] && !this.isWin) {
-            soundManager.stopAll();
-            nextLevel('restart');
+            this.summaryTime = 0;
+            this.nextLevel('restart');
         }
 
         PhysicsManager.update_pos(this.player);
@@ -212,10 +298,10 @@ export default class GameManager {
 
         if (another_entity) {
             if (another_entity instanceof Explosion) {
-                this.laterKill.push(this.player);
+                this.kill(this.player);
                 this.isPlaying = false;
                 this.isWin = false;
-                soundManager.play()
+                this.isPause = true;
             }
         }
 

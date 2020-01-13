@@ -4,6 +4,7 @@ export default class SoundManager {
         this.context = null; // аудиоконтекст
         this.gainNode = null; // главный узел
         this.loaded = false;
+        this.lastMusic = null;
     }
 
     init() {
@@ -69,6 +70,7 @@ export default class SoundManager {
             if (settings.volume) volume = settings.volume;
         }
         const sd = this.clips[path];
+        this.lastMusic = path;
         if (sd === null) return false;
         const sound = this.context.createBufferSource();
         sound.buffer = sd.buffer;
@@ -82,5 +84,38 @@ export default class SoundManager {
     //Заканчивает всю музыку
     stopAll() {
         this.gainNode.disconnect();
+    }
+
+    resumePlay() {
+        this.gainNode.connect(this.context.destination);
+    }
+    playLevelFinalMusic(isWin) {
+        this.init();
+        this.play(`../../resources/sounds/${isWin ? 'level_win' : 'game_over'}.mp3`, {
+            volume: 0.1,
+            looping: false
+        });
+    }
+
+    playPauseOutMusic() {
+        this.init();
+        this.play('../../resources/sounds/pause_out.mp3', {volume: 0.1, looping: false});
+        this.play('../../resources/sounds/background.mp3', {looping: true, volume: 0.1});
+    }
+    playPauseInMusic() {
+        this.stopAll();
+        this.init();
+        this.play('../../resources/sounds/pause_in.mp3', {volume: 0.1, looping: false});
+    }
+
+    playGameFinalMusic() {
+        if (this.lastMusic !== '../../resources/sounds/game_win.mp3') {
+            this.resumePlay();
+            this.play('../../resources/sounds/game_win.mp3', {volume: 0.1, looping: false});
+        }
+
+    }
+    playBackgroundMusic() {
+        this.play('../../resources/sounds/background.mp3', {looping: true, volume: 0.1});
     }
 }

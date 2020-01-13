@@ -1,4 +1,5 @@
-import {recordManager, gameManager} from "../game.js";
+import {gameManager} from "../game.js";
+import {getFormatDuration} from "./recordManager.js";
 
 export default class ViewManager {
     constructor(sizeX, sizeY) {
@@ -55,12 +56,12 @@ export default class ViewManager {
             ctx.textBaseline = 'middle';
             ctx.font = this.gameHelpFont;
             ctx.fillText('Congratulations! You finished the game!', this.sizeX / 2, this.sizeY / 6 * 5);
-	    ctx.fillText(`Your game time is ${recordManager.getFormatDuration()}!`, this.sizeX / 2, this.sizeY / 8 * 7);
+	        ctx.fillText(`Your game time is ${getFormatDuration(gameManager.summaryTime)}!`, this.sizeX / 2, this.sizeY / 8 * 7);
         }
     }
 
     renderLevelInfo(ctx) {
-        let text = `level ${gameManager.level} / time ` + recordManager.getFormatDuration();
+        let text = `level ${gameManager.level} / time ` + getFormatDuration(gameManager.levelTime);
         ctx.fillStyle = 'rgba(0, 0, 0, 1)';
         ctx.font = this.gameLevelInfoFont;
         ctx.textAlign = 'left';
