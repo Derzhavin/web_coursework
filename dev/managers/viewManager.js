@@ -19,15 +19,18 @@ export default class ViewManager {
         ctx.font = this.gameStatusFont;
         ctx.fillText(text, this.sizeX / 2, this.sizeY / 2);
 
+        ctx.font = this.gameHelpFont;
         let newText = "";
         if (text === 'WIN') {
             newText = 'Press N to go to continue';
-        } else if (text === 'GAME OVER') {
-            newText = 'Press R to restart the game';
+            ctx.fillText(newText, this.sizeX / 2, this.sizeY / 3 * 2);
+            newText = 'or';
+            ctx.fillText(newText, this.sizeX / 2, this.sizeY / 3 * 2 + 40);
         }
 
-        ctx.font = this.gameHelpFont;
-        ctx.fillText(newText, this.sizeX / 2, this.sizeY / 3 * 2);
+        newText = 'Press R to restart the ' + ((text === 'WIN') ? 'level': 'game');
+        ctx.fillText(newText, this.sizeX / 2, this.sizeY / 3 * 2 + 80);
+
     }
 
     renderLevelPause(ctx) {
@@ -56,7 +59,8 @@ export default class ViewManager {
             ctx.textBaseline = 'middle';
             ctx.font = this.gameHelpFont;
             ctx.fillText('Congratulations! You finished the game!', this.sizeX / 2, this.sizeY / 6 * 5);
-	        ctx.fillText(`Your game time is ${getFormatDuration(gameManager.summaryTime)}!`, this.sizeX / 2, this.sizeY / 8 * 7);
+	        ctx.fillText(`Your game time is ${getFormatDuration(gameManager.summaryTime)}!`, this.sizeX / 2, this.sizeY / 6 * 5 + 40);
+            ctx.fillText('Press R to restart the game', this.sizeX / 2, this.sizeY / 6 * 5 + 80);
         }
     }
 

@@ -29,6 +29,8 @@ export default class GameManager {
             'view': 0
         };
         this.summaryTime = 0;
+        this.levelTime = 0;
+        this.levelMaxDuration = 20 * 1000;
     }
 
     initPlayer(obj) {
@@ -45,17 +47,18 @@ export default class GameManager {
     }
 
     initLevel() {
+        this.levelTime = 0;
+        this.isPlaying = true;
+        this.isPause = false;
+        this.isOneTimeActionsAtTheEndComplete = false;
+        this.levelTime = 0;
+
         loadMap(`../../resources/descriptions/mapLevel${this.level}.json`);
         mapManager.parseEntities();
         soundManager.init()
     }
 
     play() {
-        this.levelTime = 0;
-        this.isPlaying = true;
-        this.isPause = false;
-        this.isOneTimeActionsAtTheEndComplete = false;
-
         this.initLevel();
         soundManager.playBackgroundMusic()
         this.updateAll(this.ctx);
@@ -73,10 +76,12 @@ export default class GameManager {
         this.isPlaying = false;
         this.isPause = false;
 
-        if (action === 'restart' && !this.isWin) {
+        if (action === 'restart' && !isWinCopy) {
+            this.summaryTime = 0;
             soundManager.stopAll();
             this.level = 1;
-        } else if (action === 'next_level') {
+        }
+        else if (action === 'next_level') {
             if (isWinCopy && (this.level == this.maxLevel)) {
                 this.final = true;
                 this.isOneTimeActionsAtTheEndComplete = true;
@@ -106,7 +111,7 @@ export default class GameManager {
             viewManager.renderGameCompletion(ctx);
             soundManager.playGameFinalMusic();
             if (this.final && eventsManager.actions['restart']) {
-                updateRecordInLC(this.levelTime);
+                updateRecordInLC(this.summaryTime);
                 this.final = false;
                 this.summaryTime = 0;
                 this.nextLevel('restart');
@@ -151,7 +156,7 @@ export default class GameManager {
                     this.isWin = true;
                 }
 
-                if (!this.isPlaying && !this.isOneTimeActionsAtTheEndComplete) {
+                if ((!this.isPlaying && !this.isOneTimeActionsAtTheEndComplete)) {
                     soundManager.stopAll();
                     soundManager.playLevelFinalMusic(this.isWin);
                     this.isOneTimeActionsAtTheEndComplete = true;
@@ -287,11 +292,16 @@ export default class GameManager {
             this.summaryTime += this.levelTime;
             this.nextLevel('next_level');
         }
-        if (eventsManager.actions['restart'] && !this.isWin) {
-            this.summaryTime = 0;
+        if (eventsManager.actions['restart']) {
             this.nextLevel('restart');
         }
 
+        if (this.levelTime> this.levelMaxDuration) {
+            this.isPlaying = false;
+            this.isWin = false;
+            this.isPause = true;
+        }
+        
         PhysicsManager.update_pos(this.player);
 
         let another_entity = PhysicsManager.entityAtXY(this.player, this.player.posX, this.player.posY);
