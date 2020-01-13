@@ -19,7 +19,6 @@
         if (document.getElementById("username").value.length === 0) {
             alert('Username was not specified!');
         } else {
-            localStorage['RIP_tanks.record.' + document.getElementById("username").value] = 500;
             localStorage["RIP_tanks.username"] = document.getElementById("username").value;
             window.location.href = 'pages/menu.html';
         }
